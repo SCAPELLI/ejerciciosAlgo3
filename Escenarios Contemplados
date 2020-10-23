@@ -1,0 +1,45 @@
+"Escenario 1"
+ContenedorDeMinerales vaciar .
+ContenedorDeMinerales est·Vacio.
+"Escenario 1.1"
+ContenedorDeMinerales vaciar .
+ContenedorDeMinerales cargar: #(Carbon).
+ContenedorDeMinerales est·Vacio.
+"Escenario 2"
+ContenedorDeMinerales vaciar.
+ExtractorDeCarbon extraerEn: CintaDeTransporteDeMineralesRoja.
+CintaDeTransporteDeMineralesRoja descargarEn: ContenedorDeMinerales.
+
+ExtractorDeCarbon extraer.
+ExtractorDeCarbon extraer.
+CintaDeTransporteDeMineralesRoja descargar.
+
+ContenedorDeMinerales obtenerMineralesAcumulados.
+
+"Escenario 3"
+ContenedorDeMinerales vaciar.
+ExtractorDeCarbon extraerEn: CintaDeTransporteDeMineralesRoja.
+CintaDeTransporteDeMineralesRoja descargarEn: CintaDeTransporteDeMineralesAzul.
+CintaDeTransporteDeMineralesAzul descargarEn:  ContenedorDeMinerales.
+
+ExtractorDeCarbon extraer.
+ExtractorDeCarbon extraer.
+CintaDeTransporteDeMineralesRoja descargar.
+CintaDeTransporteDeMineralesAzul descargar.
+
+ContenedorDeMinerales obtenerMineralesAcumulados.
+
+"Escenario 4"
+ContenedorDeMinerales vaciar.
+ExtractorDeCarbon extraerEn: CintaDeTransporteDeMineralesRoja.
+CintaDeTransporteDeMineralesRoja descargarEn: CintaDeTransporteDeMineralesAzul.
+CintaDeTransporteDeMineralesAzul descargarEn:  ContenedorDeMinerales.
+
+ExtractorDeHierro extraerEn: CintaDeTransporteDeMineralesAzul.
+CintaDeTransporteDeMineralesAzul descargarEn: ContenedorDeMinerales .
+
+ExtractorDeCarbon extraer.
+ExtractorDeHierro extraer .
+CintaDeTransporteDeMineralesAzul descargar.
+
+ContenedorDeMinerales obtenerMineralesAcumulados.
