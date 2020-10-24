@@ -15,21 +15,21 @@ CintaDeTransporteDeMineralesAzul class
 cargar: unMineral
 	coleccionDeMinerales add: unMineral.! !
 
+!CintaDeTransporteDeMineralesAzul class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 20:47:38'!
+conectarADestino: unDestinoDeDescarga
+	destinoDeDescarga := unDestinoDeDescarga! !
+
 !CintaDeTransporteDeMineralesAzul class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 18:25:57'!
 descargar
 	"destinoDeDescarga cargarTodo: coleccionDeMinerales."
 	coleccionDeMinerales do: [:unMineral | destinoDeDescarga cargar: unMineral].
 	self vaciar! !
 
-!CintaDeTransporteDeMineralesAzul class methodsFor: 'as yet unclassified' stamp: 'SC 10/23/2020 02:34:36'!
-descargarEn: unDestinoDeDescarga
-	destinoDeDescarga := unDestinoDeDescarga! !
-
 !CintaDeTransporteDeMineralesAzul class methodsFor: 'as yet unclassified' stamp: 'SC 10/23/2020 14:35:00'!
 est·Vacio
 	^coleccionDeMinerales isEmpty.! !
 
-!CintaDeTransporteDeMineralesAzul class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 18:47:39'!
+!CintaDeTransporteDeMineralesAzul class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 20:52:21'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
@@ -59,6 +59,10 @@ CintaDeTransporteDeMineralesRoja class
 cargar: unMineral
 	coleccionDeMinerales add: unMineral.! !
 
+!CintaDeTransporteDeMineralesRoja class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 20:47:38'!
+conectarADestino: unDestinoDeDescarga
+	destinoDeDescarga := unDestinoDeDescarga! !
+
 !CintaDeTransporteDeMineralesRoja class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 18:21:33'!
 descargar
 	"destinoDeDescarga cargarTodo: coleccionDeMinerales."
@@ -66,14 +70,10 @@ descargar
 	self vaciar ! !
 
 !CintaDeTransporteDeMineralesRoja class methodsFor: 'as yet unclassified' stamp: 'SC 10/23/2020 14:50:04'!
-descargarEn: unDestinoDeDescarga
-	destinoDeDescarga := unDestinoDeDescarga! !
-
-!CintaDeTransporteDeMineralesRoja class methodsFor: 'as yet unclassified' stamp: 'SC 10/23/2020 14:50:04'!
 est·Vacio
 	^coleccionDeMinerales isEmpty.! !
 
-!CintaDeTransporteDeMineralesRoja class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 18:47:39'!
+!CintaDeTransporteDeMineralesRoja class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 20:52:21'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
@@ -115,7 +115,7 @@ cargar: unMineral
 est·Vacio
 	^contenido isEmpty.! !
 
-!Contenedor class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 18:47:39'!
+!Contenedor class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 20:52:21'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
@@ -139,15 +139,15 @@ DenotativeObject subclass: #ExtractorDeCarbon
 ExtractorDeCarbon class
 	instanceVariableNames: 'destinoDeExtraccion'!
 
-!ExtractorDeCarbon class methodsFor: 'as yet unclassified' stamp: 'SC 10/23/2020 14:23:21'!
-conectarA: unDestinoDeExtraccion.
+!ExtractorDeCarbon class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 20:51:35'!
+conectarADestino: unDestinoDeExtraccion.
 	destinoDeExtraccion := unDestinoDeExtraccion.! !
 
 !ExtractorDeCarbon class methodsFor: 'as yet unclassified' stamp: 'SC 10/23/2020 12:41:12'!
 extraer
 	destinoDeExtraccion cargar: #carbon.! !
 
-!ExtractorDeCarbon class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 18:47:39'!
+!ExtractorDeCarbon class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 20:52:21'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
@@ -167,15 +167,15 @@ DenotativeObject subclass: #ExtractorDeHierro
 ExtractorDeHierro class
 	instanceVariableNames: 'destinoDeExtraccion'!
 
-!ExtractorDeHierro class methodsFor: 'as yet unclassified' stamp: 'SC 10/23/2020 14:50:17'!
-conectarA: unDestinoDeExtraccion.
+!ExtractorDeHierro class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 20:51:35'!
+conectarADestino: unDestinoDeExtraccion.
 	destinoDeExtraccion := unDestinoDeExtraccion.! !
 
 !ExtractorDeHierro class methodsFor: 'as yet unclassified' stamp: 'SC 10/23/2020 14:52:08'!
 extraer
 	destinoDeExtraccion cargar: #hierro.! !
 
-!ExtractorDeHierro class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 18:47:39'!
+!ExtractorDeHierro class methodsFor: 'as yet unclassified' stamp: 'FL 10/24/2020 20:52:21'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
@@ -195,10 +195,10 @@ DenotativeObject subclass: #FactorioTest
 FactorioTest class
 	instanceVariableNames: ''!
 
-!FactorioTest class methodsFor: 'escenario 1' stamp: 'SC 10/23/2020 14:23:00'!
+!FactorioTest class methodsFor: 'escenario 1' stamp: 'FL 10/24/2020 20:51:35'!
 configurarCircuitoExtractorCaja.
 	Contenedor vaciar.
-	ExtractorDeCarbon conectarA: Contenedor.
+	ExtractorDeCarbon conectarADestino: Contenedor.
 ! !
 
 !FactorioTest class methodsFor: 'escenario 1' stamp: 'SC 10/23/2020 14:24:18'!
@@ -216,15 +216,15 @@ test01ExtractorCaja
 	Assert that: Contenedor cantidadDeMenas isEqualTo: 1.! !
 
 
-!FactorioTest class methodsFor: 'escenario 2' stamp: 'FL 10/24/2020 18:29:37'!
+!FactorioTest class methodsFor: 'escenario 2' stamp: 'FL 10/24/2020 20:51:35'!
 configurarCircuitoExtractorCintaCaja
 	"No se olviden de vaciar la cinta tambien!!"
 	"Conectamos el extractor a la cinta, luego conectamos la cinta a la caja"
 
 	Contenedor vaciar.
 	CintaDeTransporteDeMineralesAzul vaciar.
-	ExtractorDeCarbon conectarA: CintaDeTransporteDeMineralesAzul .
-	CintaDeTransporteDeMineralesAzul descargarEn: Contenedor.! !
+	ExtractorDeCarbon conectarADestino: CintaDeTransporteDeMineralesAzul .
+	CintaDeTransporteDeMineralesAzul conectarADestino: Contenedor.! !
 
 !FactorioTest class methodsFor: 'escenario 2' stamp: 'SC 10/23/2020 14:28:33'!
 hacerAndarCircuitoExtractorCintaCaja
@@ -245,16 +245,16 @@ test02ExtractorCintaCaja
 	Assert isTrue: CintaDeTransporteDeMineralesAzul est·Vacio.! !
 
 
-!FactorioTest class methodsFor: 'escenario 3' stamp: 'FL 10/24/2020 18:33:48'!
+!FactorioTest class methodsFor: 'escenario 3' stamp: 'FL 10/24/2020 20:51:35'!
 configurarCircuitoExtractorExtractorCintaCintaCaja
 
 	CintaDeTransporteDeMineralesAzul vaciar.
 	CintaDeTransporteDeMineralesRoja vaciar.
 	Contenedor vaciar.
-	ExtractorDeCarbon conectarA: CintaDeTransporteDeMineralesAzul.
-	ExtractorDeHierro conectarA: CintaDeTransporteDeMineralesRoja.
-	CintaDeTransporteDeMineralesAzul descargarEn: 	CintaDeTransporteDeMineralesRoja.
-	CintaDeTransporteDeMineralesRoja descargarEn: Contenedor.
+	ExtractorDeCarbon conectarADestino: CintaDeTransporteDeMineralesAzul.
+	ExtractorDeHierro conectarADestino: CintaDeTransporteDeMineralesRoja.
+	CintaDeTransporteDeMineralesAzul conectarADestino: 	CintaDeTransporteDeMineralesRoja.
+	CintaDeTransporteDeMineralesRoja conectarADestino: Contenedor.
 	
 ! !
 
