@@ -21,6 +21,20 @@ TestCase subclass: #CustomerBookTest
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
+!CustomerBookTest methodsFor: 'tests' stamp: 'SC 11/4/2020 22:56:23'!
+addAndSuspendPaulToACustomerBook
+	|customerBook paulMcCartney|
+	
+	customerBook := CustomerBook new.
+	paulMcCartney := 'Paul McCartney'.
+	customerBook addCustomerNamed: paulMcCartney.
+	customerBook suspendCustomerNamed: paulMcCartney.
+	^customerBook
+	
+
+	
+! !
+
 !CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/4/2020 22:10:19'!
 doAnInvalidAction: anAction anGetError: error andValidate: validation1 andValidate: validation2
 	
@@ -88,21 +102,18 @@ test04CanNotRemoveAnInvalidCustomer
 			self assert: (customerBook includesCustomerNamed: johnLennon) ]
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'NR 4/3/2019 10:50:25'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'SC 11/4/2020 23:00:11'!
 test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
 
-	| customerBook paulMcCartney|
+	| customerBook|
 	
-	customerBook := CustomerBook new.
-	paulMcCartney := 'Paul McCartney'.
 	
-	customerBook addCustomerNamed: paulMcCartney.
-	customerBook suspendCustomerNamed: paulMcCartney.
+	customerBook := self addAndSuspendPaulToACustomerBook.
 	
 	self assert: 0 equals: customerBook numberOfActiveCustomers.
 	self assert: 1 equals: customerBook numberOfSuspendedCustomers.
 	self assert: 1 equals: customerBook numberOfCustomers.
-	self assert: (customerBook includesCustomerNamed: paulMcCartney).
+	self assert: (customerBook includesCustomerNamed: 'Paul McCartney').
 	
 
 	
