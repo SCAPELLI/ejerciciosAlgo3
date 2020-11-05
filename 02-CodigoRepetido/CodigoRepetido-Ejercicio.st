@@ -21,64 +21,57 @@ TestCase subclass: #CustomerBookTest
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/2/2020 21:51:01'!
-millisecondstoDoAnAction: action withCustomerBook: customerBook forACustomerName: aCustomerName isLessThan: milliseconds
-
-	| millisecondsBeforeRunning millisecondsAfterRunning |
+!CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/4/2020 22:10:19'!
+doAnInvalidAction: anAction anGetError: error andValidate: validation1 andValidate: validation2
+	
 		
-	millisecondsBeforeRunning := Time millisecondClockValue * millisecond.
-	action value: customerBook value: aCustomerName.
-	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
+	anAction
+				
+		on: error
 
-	self assert isTrue: (millisecondsAfterRunning - millisecondsBeforeRunning) < (milliseconds * millisecond)
-! !
+		
+		do: [ :anError |
+			self assert isTrue: validation1 value.
+			self assert isTrue: validation2 value
+		 ]! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/2/2020 22:08:37'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/4/2020 20:57:46'!
 test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
 
-	| customerBook |
+	| customerBook  |
 	
 	customerBook := CustomerBook new.
 	
-	self millisecondstoDoAnAction: [
-		
-		:aCustomerBook :aCustomerName |
-		
-		aCustomerBook addCustomerNamed: aCustomerName 
-		
-	]  withCustomerBook: customerBook forACustomerName:  'John Lennon' isLessThan: 50.
+	self testIfAnAction: [		customerBook addCustomerNamed: 'John Lennon'	]
+	
+		takesLessThanThisMilliseconds: 50
+	
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/2/2020 22:08:12'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/4/2020 20:57:35'!
 test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 
 	| customerBook |
 	
 	customerBook := CustomerBook new.
 	
-	customerBook addCustomerNamed: 'Paul McCartney'..
-	  
-	self millisecondstoDoAnAction: [
-		:aCustomerBook :aCustomerName |
-		aCustomerBook removeCustomerNamed: aCustomerName 
-	]  withCustomerBook: customerBook forACustomerName:  'Paul McCartney' isLessThan: 100.	
-! !
+	customerBook addCustomerNamed: 'Paul McCartney'.
+	
+	self testIfAnAction: [		customerBook removeCustomerNamed: 'Paul McCartney'	]
+		
+		takesLessThanThisMilliseconds: 100! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'HernanWilkinson 5/9/2012 18:12'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/4/2020 22:08:38'!
 test03CanNotAddACustomerWithEmptyName 
 
 	| customerBook |
 			
 	customerBook := CustomerBook new.
 
-	[ customerBook addCustomerNamed: ''.
-	self fail ]
-		on: Error 
-		do: [ :anError | 
-			self assert: anError messageText = CustomerBook customerCanNotBeEmptyErrorMessage.
-			self assert: customerBook isEmpty ]! !
+	self doAnInvalidAction:  [ customerBook addCustomerNamed: ''.
+			self fail ] anGetError: Error andValidate: ['customerCanNotBeEmptyErrorMessage' = CustomerBook customerCanNotBeEmptyErrorMessage]  andValidate: [customerBook isEmpty]! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'HAW 8/28/2017 08:57:25'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/4/2020 21:13:12'!
 test04CanNotRemoveAnInvalidCustomer
 	
 	| customerBook johnLennon |
@@ -169,6 +162,19 @@ test08CanNotSuspendAnAlreadySuspendedCustomer
 		do: [ :anError | 
 			self assert: customerBook numberOfCustomers = 1.
 			self assert: (customerBook includesCustomerNamed: johnLennon) ]
+! !
+
+!CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/4/2020 20:56:58'!
+testIfAnAction: anAction takesLessThanThisMilliseconds: maximumMilliseconds
+
+	| millisecondsBeforeRunning millisecondsAfterRunning |
+		
+	millisecondsBeforeRunning := Time millisecondClockValue * millisecond.
+	anAction value	.
+	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
+	
+	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (maximumMilliseconds * millisecond)
+	
 ! !
 
 
