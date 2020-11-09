@@ -21,6 +21,31 @@ TestCase subclass: #CustomerBookTest
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
+!CustomerBookTest methodsFor: 'tests' stamp: 'SC 11/4/2020 22:56:23'!
+addAndSuspendPaulToACustomerBook
+	|customerBook paulMcCartney|
+	
+	customerBook := CustomerBook new.
+	paulMcCartney := 'Paul McCartney'.
+	customerBook addCustomerNamed: paulMcCartney.
+	customerBook suspendCustomerNamed: paulMcCartney.
+	^customerBook
+	
+
+	
+! !
+
+!CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/5/2020 18:14:33'!
+doACustomerBookFailAction: anAction withTypeOfError: errorType andCheckStatus: blockForCheckStatus
+
+	| customerBook |
+			
+	customerBook := CustomerBook new.
+
+	[ anAction value: customerBook]
+		on: errorType 
+		do: [ :anError | blockForCheckStatus value: anError value: customerBook ]! !
+
 !CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/5/2020 18:48:57'!
 makeAnInvalidSuspendAction: anAction withACustomer: aCustomer
 
@@ -200,6 +225,23 @@ andTotalCustomersIs: totalCustomers andPaulisInclude: aBoolean
 	self assert: totalCustomers equals: customerBook numberOfCustomers.
 	self assert: aBoolean = (customerBook includesCustomerNamed: 'Paul McCartney').! !
 
+!CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/5/2020 20:15:40'!
+whenJohnLennonIsTheOnlyCustomerDoAnInvalidAction: anAction
+	|customerBook johnLennon|
+			
+	customerBook := CustomerBook new.
+	johnLennon := 'John Lennon'.
+	customerBook addCustomerNamed: johnLennon.
+	
+	[	anAction value: customerBook.
+		
+		self fail
+	]
+		on: CantSuspend 
+		do: [ :anError | 
+			self assert: customerBook numberOfCustomers = 1.
+			self assert: (customerBook includesCustomerNamed: johnLennon) ]! !
+
 !CustomerBookTest methodsFor: 'tests' stamp: 'FL 11/7/2020 19:48:36'!
 whenJohnLennonIsTheOnlyCustomerTheNextActionIsInvalid: anAction
 	|customerBook johnLennon|
@@ -240,32 +282,14 @@ addCustomerNamed: aName
 	
 	active add: aName ! !
 
-!CustomerBook methodsFor: 'customer management' stamp: 'FL 11/7/2020 20:01:25'!
-remove: aName from: aNamesCollection
-
-1 to: aNamesCollection size do: 
-	[ :index |
-		aName = (aNamesCollection at: index)
-			ifTrue: [
-				aNamesCollection removeAt: index.
-				^ aName 
-			] 
-	].
-
-^ NotFound signal.! !
-
-!CustomerBook methodsFor: 'customer management' stamp: 'FL 11/7/2020 20:05:13'!
+!CustomerBook methodsFor: 'customer management' stamp: 'SC 11/9/2020 00:14:35'!
 removeCustomerNamed: aName 
- 
-	[
-		self remove: aName from: active.
-		
-	] on: NotFound do: 	[
-	
-		self remove: aName from: suspended.
-		
-	] on: NotFound do: [^NotFound signal.]
-	
+ 	
+	active remove: aName 
+	ifAbsent: [suspended  remove: aName 
+		ifAbsent: [^NotFound signal]
+		]
+
 	
 ! !
 
