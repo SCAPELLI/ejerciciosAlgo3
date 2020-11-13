@@ -314,24 +314,10 @@ Object subclass: #Numero
 
 	self subclassResponsibility ! !
 
-!Numero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:17:39'!
-addWhenAugendIsEntero: anAugend
-	^self subclassResponsibility.! !
-
-!Numero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:04'!
-multiplyWhenMultiplierIsEntero: aMultiplier
-	
-	self subclassResponsibility! !
-
 !Numero methodsFor: 'arithmetic operations' stamp: 'NR 9/23/2018 23:37:13'!
 negated
 	
 	^self * (Entero with: -1)! !
-
-!Numero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:29'!
-substracWhenMinuendIsEntero: aMinuend
-
-	self subclassResponsibility.! !
 
 
 !Numero methodsFor: 'testing' stamp: 'NR 9/23/2018 23:36:49'!
@@ -348,6 +334,45 @@ isOne
 isZero
 
 	self subclassResponsibility ! !
+
+
+!Numero methodsFor: 'arithmetic polymorphism' stamp: 'SC 11/12/2020 21:17:39'!
+addWhenAugendIsEntero: anAugend
+	^self subclassResponsibility.! !
+
+!Numero methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:11:47'!
+addWhenAugendIsFraccion: anAugend
+	^self subclassResponsibility.! !
+
+!Numero methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:11:06'!
+divideWhenDividendIsEntero: aDividend
+
+	self subclassResponsibility.! !
+
+!Numero methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:11:56'!
+divideWhenDividendIsFraccion: aDividend
+
+	self subclassResponsibility.! !
+
+!Numero methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:07:18'!
+multiplyWhenMultiplicandIsEntero: aMultiplier
+	
+	self subclassResponsibility! !
+
+!Numero methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:12:03'!
+multiplyWhenMultiplicandIsFraccion: aMultiplier
+	
+	self subclassResponsibility! !
+
+!Numero methodsFor: 'arithmetic polymorphism' stamp: 'SC 11/12/2020 21:18:29'!
+substracWhenMinuendIsEntero: aMinuend
+
+	self subclassResponsibility.! !
+
+!Numero methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:12:11'!
+substracWhenMinuendIsFraccion: aMinuend
+
+	self subclassResponsibility.! !
 
 
 !Numero methodsFor: 'private' stamp: 'HernanWilkinson 5/7/2016 22:48'!
@@ -378,10 +403,10 @@ Numero subclass: #Entero
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:04'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'FL 11/13/2020 17:07:18'!
 * aMultiplicand 
 	
-	^aMultiplicand multiplyWhenMultiplierIsEntero: self. ! !
+	^aMultiplicand multiplyWhenMultiplicandIsEntero: self. ! !
 
 !Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:16:16'!
 + anAdder 
@@ -393,30 +418,10 @@ Numero subclass: #Entero
 	
 	^aSubtrahend substracWhenMinuendIsEntero: self.! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:11:58'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'FL 11/13/2020 17:17:34'!
 / aDivisor 
 	
-	^aDivisor divideWhenDividendIsEntero: self.
-	"(aDivisor isKindOf: Entero) ifTrue: [^Fraccion with: self over: aDivisor].
-	(aDivisor isKindOf: Fraccion) ifTrue: [
-		| numerator denominator |
-		numerator := self * aDivisor denominator.
-		denominator := aDivisor numerator.
-		^ Fraccion with: numerator over: denominator.
-	].
-
-	self error: 'Se intenta dividor por un colaborador de tipo no soportado'."! !
-
-!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:16:16'!
-addWhenAugendIsEntero: anAugend
-	
-	^Entero with: anAugend integerValue + self integerValue .
-! !
-
-!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:07:41'!
-divideWhenDividendIsEntero: aDividend
-
-	^Fraccion with: aDividend over: self.	! !
+	^aDivisor divideWhenDividendIsEntero: self.! !
 
 !Entero methodsFor: 'arithmetic operations' stamp: 'HAW 9/24/2018 08:47:50'!
 fibonacci
@@ -431,16 +436,6 @@ fibonacci
 	
 	^ (self - one) fibonacci + (self - two) fibonacci
 		! !
-
-!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:04'!
-multiplyWhenMultiplierIsEntero: aMultiplier  
-	
-	^Entero with: value * aMultiplier integerValue.! !
-
-!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:29'!
-substracWhenMinuendIsEntero: aMinuend.
-	
-	^Entero with: aMinuend integerValue - self integerValue.! !
 
 
 !Entero methodsFor: 'comparing' stamp: 'HernanWilkinson 5/7/2016 21:01'!
@@ -500,6 +495,60 @@ greatestCommonDivisorWith: anEntero
 	
 	^self class with: (value gcd: anEntero integerValue)! !
 
+
+!Entero methodsFor: 'arithmetic polymorphism' stamp: 'SC 11/12/2020 21:16:16'!
+addWhenAugendIsEntero: anAugend
+	
+	^Entero with: anAugend integerValue + self integerValue .
+! !
+
+!Entero methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 16:16:59'!
+addWhenAugendIsFraccion: anAugend
+
+	^self + anAugend! !
+
+!Entero methodsFor: 'arithmetic polymorphism' stamp: 'SC 11/12/2020 21:07:41'!
+divideWhenDividendIsEntero: aDividend
+
+	^Fraccion with: aDividend over: self.	! !
+
+!Entero methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:20:47'!
+divideWhenDividendIsFraccion: aDividend
+
+	| newDenominator |
+	
+	newDenominator := self * aDividend denominator.
+	
+	^aDividend numerator/newDenominator.! !
+
+!Entero methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:07:43'!
+multiplyWhenMultiplicandIsEntero: aMultiplicand  
+	
+	^Entero with: value * aMultiplicand integerValue.! !
+
+!Entero methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:08:39'!
+multiplyWhenMultiplicandIsFraccion: aMultiplicand
+
+	^self * aMultiplicand! !
+
+!Entero methodsFor: 'arithmetic polymorphism' stamp: 'SC 11/12/2020 21:18:29'!
+substracWhenMinuendIsEntero: aMinuend.
+	
+	^Entero with: aMinuend integerValue - self integerValue.! !
+
+!Entero methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:33:45'!
+substractWhenMinuendIsFraccion: aMinuendFraccion
+
+
+		| nuemerator denominator|
+	
+		nuemerator := (aMinuendFraccion numerator ) - (self * aMinuendFraccion denominator ).
+		
+		denominator := aMinuendFraccion denominator.
+	
+		^nuemerator / denominator
+	! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Entero class' category: 'Numeros-Parte2-Ejercicio'!
@@ -526,81 +575,26 @@ Numero subclass: #Fraccion
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'FL 11/11/2020 19:21:49'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'FL 11/13/2020 17:08:16'!
 * aMultiplier 
 	
-	(aMultiplier isKindOf: Entero) ifTrue: [^aMultiplier  * self].
-	
-	(aMultiplier isKindOf: Fraccion) ifTrue: [ ^(numerator * aMultiplier numerator) / (denominator * aMultiplier denominator)].
-	
-	self error: 'Se intenta multiplicar con un colaborador de tipo no soportado'.! !
+	^aMultiplier multiplyWhenMultiplicandIsFraccion: self.! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'FL 11/11/2020 20:12:09'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'FL 11/13/2020 16:18:01'!
 + anAdder 
 	
-	
-	
-	
-	(anAdder isKindOf: Fraccion) ifTrue: [
-		| newNumerator newDenominator |
-		newNumerator := (numerator * anAdder denominator) + (denominator * anAdder numerator).
-		newDenominator := denominator * anAdder denominator.
-		^newNumerator / newDenominator 
-	].
-	
-	(anAdder isKindOf: Entero) ifTrue: [^anAdder + self].
-	
-	self error: 'Se intenta sumar un colaborador de tipo no soportado'.
-	
-	! !
+	^anAdder addWhenAugendIsFraccion: self.! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'FL 11/11/2020 20:51:59'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'FL 11/13/2020 16:33:48'!
 - aSubtrahend 
 	
-	(aSubtrahend isKindOf: Fraccion) ifTrue: [
-		| newNumerator newDenominator |
-	
-		newNumerator := (numerator * aSubtrahend denominator) - (denominator * aSubtrahend numerator).
-		newDenominator := denominator * aSubtrahend denominator.
-	
-		^newNumerator / newDenominator
-	].
-	(aSubtrahend isKindOf: Entero) ifTrue: [^(Entero with: -1) * aSubtrahend + self].
-	
-	self error: 'Se intenta restar un colaborador de tipo no soportado'.
-! !
+	^aSubtrahend substractWhenMinuendIsFraccion: self.
+	! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'FL 11/11/2020 20:34:15'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'FL 11/13/2020 17:13:16'!
 / aDivisor 
 
-	(aDivisor isKindOf: Fraccion) ifTrue: [^(numerator * aDivisor denominator) / (denominator * aDivisor numerator)].
-	
-	(aDivisor isKindOf: Entero) ifTrue: [
-		| newDenominator |
-		newDenominator := aDivisor * denominator.
-		^Fraccion with: numerator over: newDenominator .
-	].
-	self error: 'Se intenta dividir por un colaborador de tipo no soportado'.! !
-
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:17:16'!
-addWhenAugendIsEntero: anAugend
-	^Fraccion with: anAugend * denominator + numerator over: denominator.! !
-
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:15:36'!
-divideWhenDividendIsEntero: aDividend
-
-	^Fraccion with: aDividend * denominator over: numerator.! !
-
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:04'!
-multiplyWhenMultiplierIsEntero: aMultiplier
-	
-	^Fraccion with: aMultiplier * numerator over: denominator.! !
-
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:29'!
-substracWhenMinuendIsEntero: aMinuend.	
-	
-	^Fraccion with: aMinuend * denominator - numerator over: denominator.
-! !
+	^aDivisor divideWhenDividendIsFraccion: self.! !
 
 
 !Fraccion methodsFor: 'comparing' stamp: 'HernanWilkinson 5/7/2016 20:42'!
@@ -650,6 +644,63 @@ isOne
 isZero
 	
 	^false! !
+
+
+!Fraccion methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:33:15'!
+addWhenAugendIsEntero: anAugend
+
+	^Fraccion with: anAugend * denominator + numerator over: denominator.! !
+
+!Fraccion methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 16:16:20'!
+addWhenAugendIsFraccion: anAugend
+
+	| newNumerator newDenominator |
+	
+	newNumerator := (numerator * anAugend denominator) + (denominator * anAugend numerator).
+	
+	newDenominator := denominator * anAugend denominator.
+	
+	^newNumerator / newDenominator.! !
+
+!Fraccion methodsFor: 'arithmetic polymorphism' stamp: 'SC 11/12/2020 21:15:36'!
+divideWhenDividendIsEntero: aDividend
+
+	^Fraccion with: aDividend * denominator over: numerator.! !
+
+!Fraccion methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:01:44'!
+divideWhenDividendIsFraccion: aDividend
+	
+	^(aDividend numerator * self denominator) / (aDividend denominator * self numerator).
+	! !
+
+!Fraccion methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:09:51'!
+multiplyWhenMultiplicandIsEntero: aMultiplicand
+	
+	^Fraccion with: aMultiplicand * numerator over: denominator.! !
+
+!Fraccion methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 17:08:16'!
+multiplyWhenMultiplicandIsFraccion: aMultiplier
+
+	^Fraccion with: (numerator * aMultiplier numerator) over: (denominator * aMultiplier denominator).
+	! !
+
+!Fraccion methodsFor: 'arithmetic polymorphism' stamp: 'SC 11/12/2020 21:18:29'!
+substracWhenMinuendIsEntero: aMinuend.	
+	
+	^Fraccion with: aMinuend * denominator - numerator over: denominator.
+! !
+
+!Fraccion methodsFor: 'arithmetic polymorphism' stamp: 'FL 11/13/2020 16:33:10'!
+substractWhenMinuendIsFraccion: aMinuend
+	
+	| newNumerator newDenominator |
+	
+	newDenominator := aMinuend denominator * self denominator.
+
+	newNumerator := (aMinuend numerator * self denominator) - (aMinuend denominator * self numerator).
+	
+	^newNumerator / newDenominator
+	! !
 
 
 !Fraccion methodsFor: 'printing' stamp: 'HAW 9/24/2018 08:54:46'!
