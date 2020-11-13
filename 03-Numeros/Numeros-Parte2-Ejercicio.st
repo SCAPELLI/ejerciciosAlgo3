@@ -314,10 +314,24 @@ Object subclass: #Numero
 
 	self subclassResponsibility ! !
 
+!Numero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:17:39'!
+addWhenAugendIsEntero: anAugend
+	^self subclassResponsibility.! !
+
+!Numero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:04'!
+multiplyWhenMultiplierIsEntero: aMultiplier
+	
+	self subclassResponsibility! !
+
 !Numero methodsFor: 'arithmetic operations' stamp: 'NR 9/23/2018 23:37:13'!
 negated
 	
 	^self * (Entero with: -1)! !
+
+!Numero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:29'!
+substracWhenMinuendIsEntero: aMinuend
+
+	self subclassResponsibility.! !
 
 
 !Numero methodsFor: 'testing' stamp: 'NR 9/23/2018 23:36:49'!
@@ -364,48 +378,26 @@ Numero subclass: #Entero
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'FL 11/11/2020 19:31:27'!
-* aMultiplier 
+!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:04'!
+* aMultiplicand 
 	
-	(aMultiplier isKindOf: Entero) ifTrue: [^Entero with: value * aMultiplier integerValue].
-	(aMultiplier isKindOf: Fraccion) ifTrue: [
-		
-		^Fraccion with: self * aMultiplier numerator over: aMultiplier denominator.
-	].
+	^aMultiplicand multiplyWhenMultiplierIsEntero: self. ! !
 
-	self error: 'Se intenta multiplicar con un colaborador de tipo no soportado'.! !
-
-!Entero methodsFor: 'arithmetic operations' stamp: 'FL 11/11/2020 19:09:36'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:16:16'!
 + anAdder 
 	
-	(anAdder isKindOf: Entero) ifTrue:  [^Entero with: value + anAdder integerValue].
-	(anAdder isKindOf: Fraccion) ifTrue: [
-		|numerator denominator|
-		numerator := self * anAdder denominator + anAdder numerator.
-		denominator := anAdder denominator.
-		^Fraccion with: numerator over: denominator.
-	].
-	
-	self error: 'Se intenta sumar un colaborador de tipo no soportado'.
-! !
+	^anAdder addWhenAugendIsEntero: self.! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'FL 11/11/2020 20:51:42'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:29'!
 - aSubtrahend 
 	
-	(aSubtrahend isKindOf: Entero) ifTrue: [^Entero with: value - aSubtrahend integerValue].
-	(aSubtrahend isKindOf: Fraccion) ifTrue: [
-		| numerator denominator |
-		numerator := self * aSubtrahend denominator - aSubtrahend numerator.
-		denominator := aSubtrahend denominator.
-		^Fraccion with: numerator over: denominator.
-	].
+	^aSubtrahend substracWhenMinuendIsEntero: self.! !
 
-	self error: 'Se intenta restar un colaborador de tipo no soportado'.! !
-
-!Entero methodsFor: 'arithmetic operations' stamp: 'FL 11/11/2020 19:55:49'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:11:58'!
 / aDivisor 
 	
-	(aDivisor isKindOf: Entero) ifTrue: [^Fraccion with: self over: aDivisor].
+	^aDivisor divideWhenDividendIsEntero: self.
+	"(aDivisor isKindOf: Entero) ifTrue: [^Fraccion with: self over: aDivisor].
 	(aDivisor isKindOf: Fraccion) ifTrue: [
 		| numerator denominator |
 		numerator := self * aDivisor denominator.
@@ -413,7 +405,18 @@ Numero subclass: #Entero
 		^ Fraccion with: numerator over: denominator.
 	].
 
-	self error: 'Se intenta dividor por un colaborador de tipo no soportado'.! !
+	self error: 'Se intenta dividor por un colaborador de tipo no soportado'."! !
+
+!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:16:16'!
+addWhenAugendIsEntero: anAugend
+	
+	^Entero with: anAugend integerValue + self integerValue .
+! !
+
+!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:07:41'!
+divideWhenDividendIsEntero: aDividend
+
+	^Fraccion with: aDividend over: self.	! !
 
 !Entero methodsFor: 'arithmetic operations' stamp: 'HAW 9/24/2018 08:47:50'!
 fibonacci
@@ -428,6 +431,16 @@ fibonacci
 	
 	^ (self - one) fibonacci + (self - two) fibonacci
 		! !
+
+!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:04'!
+multiplyWhenMultiplierIsEntero: aMultiplier  
+	
+	^Entero with: value * aMultiplier integerValue.! !
+
+!Entero methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:29'!
+substracWhenMinuendIsEntero: aMinuend.
+	
+	^Entero with: aMinuend integerValue - self integerValue.! !
 
 
 !Entero methodsFor: 'comparing' stamp: 'HernanWilkinson 5/7/2016 21:01'!
@@ -568,6 +581,26 @@ Numero subclass: #Fraccion
 		^Fraccion with: numerator over: newDenominator .
 	].
 	self error: 'Se intenta dividir por un colaborador de tipo no soportado'.! !
+
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:17:16'!
+addWhenAugendIsEntero: anAugend
+	^Fraccion with: anAugend * denominator + numerator over: denominator.! !
+
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:15:36'!
+divideWhenDividendIsEntero: aDividend
+
+	^Fraccion with: aDividend * denominator over: numerator.! !
+
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:04'!
+multiplyWhenMultiplierIsEntero: aMultiplier
+	
+	^Fraccion with: aMultiplier * numerator over: denominator.! !
+
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'SC 11/12/2020 21:18:29'!
+substracWhenMinuendIsEntero: aMinuend.	
+	
+	^Fraccion with: aMinuend * denominator - numerator over: denominator.
+! !
 
 
 !Fraccion methodsFor: 'comparing' stamp: 'HernanWilkinson 5/7/2016 20:42'!
