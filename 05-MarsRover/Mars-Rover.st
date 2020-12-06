@@ -1,208 +1,223 @@
 !classDefinition: #MarsRoverTest category: 'Mars-Rover'!
 TestCase subclass: #MarsRoverTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'North South East West marsRover startPoint north1Step north2Steps east1Step east2Steps'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Mars-Rover'!
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/5/2020 21:11:24'!
-test01AnEmptyMoveSequencyWillNoChangePositionOrDirection
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 12:15:37'!
+test01TheRoverKnowsItsPosition
 
-	| aRover |
+	marsRover := MarsRover startMissionAt: startPoint pointingTo: North.
 	
-	aRover := MarsRover locatedAt: 0@0 lookingAt: #N.
-	
-	aRover doTheseMovements: ''.
-	
-	self assert: (aRover isLocatedAt: 0@0).
-	self assert: (aRover isLookingAt: #N).! !
+	self assert: ( marsRover isFoundAt: startPoint ).! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/5/2020 21:13:41'!
-test02ANotEmptyMoveSequencyShouldChangePosition
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 12:15:37'!
+test02TheRoverKnowsItsHeading
 
-	| aRover |
+	marsRover := MarsRover startMissionAt: startPoint pointingTo: South.
 	
-	aRover := MarsRover locatedAt: 0@0 lookingAt: #N.
-	
-	aRover doTheseMovements: 'f'.
-	
-	self deny: (aRover isLocatedAt: 0@0).! !
+	self assert: ( marsRover isPointingTo: South ).! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/5/2020 21:16:51'!
-test03TheRoverCanHandleMoreThanOneMoveAtOneTime
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 12:15:37'!
+test03TheRoverRemainsStillWhenAnEmptyRequestIsExecuted
 
-	| aRover |
+	marsRover := MarsRover startMissionAt: startPoint pointingTo: South.
 	
-	aRover := MarsRover locatedAt: 0@0 lookingAt: #N.
+	marsRover execute: ''.
 	
-	aRover doTheseMovements: 'ff'.
-	
-	self assert: (aRover isLocatedAt: 2@0).! !
+	self assert: (marsRover isFoundAt: startPoint).
+	self assert: (marsRover isPointingTo: South).! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/5/2020 21:19:26'!
-test04TheRoverCanDoDifferentMovements
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 12:15:37'!
+test04MoveForwareChangeTheRoverPosition
 
-	| aRover |
+	marsRover := MarsRover startMissionAt: startPoint pointingTo: North.
 	
-	aRover := MarsRover locatedAt: 0@0 lookingAt: #N.
+	marsRover execute: 'f'.
 	
-	aRover doTheseMovements: 'b'.
-	
-	self assert: (aRover isLocatedAt: -1@0).! !
+	self assert: (marsRover isFoundAt: startPoint + north1Step).! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/5/2020 23:01:24'!
-test05MoveForwardDependsOfTheRoverDirection
-	| aRover |
-	
-	aRover := MarsRover locatedAt: 0@0 lookingAt: #E.
-	
-	aRover doTheseMovements: 'f'.
-	
-	self assert: (aRover isLocatedAt: 0@1).! !
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 12:15:37'!
+test05DisplacementIsRelativeToTheRoverHeading
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/5/2020 23:01:10'!
-test06TheRoverCanMoveBackward
-	| aRover |
+	marsRover := MarsRover startMissionAt: startPoint pointingTo: East.
 	
-	aRover := MarsRover locatedAt: 0@0 lookingAt: #E.
+	marsRover execute: 'f'.
 	
-	aRover doTheseMovements: 'b'.
-	
-	self assert: (aRover isLocatedAt: 0@-1).! !
+	self assert: (marsRover isFoundAt: startPoint + east1Step).! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/5/2020 23:00:50'!
-test07TurnRightChangesTheRoverDirection
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 12:15:37'!
+test06TheRoverCanExecuteSeveralCommandsAtTheSameTime
 
-	| aRover |
+	marsRover := MarsRover startMissionAt: startPoint pointingTo: East .
 	
-	aRover := MarsRover locatedAt: 0@0 lookingAt: #E.
+	marsRover execute: 'ff'.
 	
-	aRover doTheseMovements: 'r'.
-	
-	self deny: (aRover isLookingAt: #E).! !
+	self assert: (marsRover isFoundAt: east2Steps + startPoint ).! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/5/2020 23:00:41'!
-test08TurnRightDependsOfTheRoverDirection
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 12:15:37'!
+test07MoveBackwardIsTheOppositeOfMoveForward
 
-	| aRover |
+	marsRover := MarsRover startMissionAt: startPoint pointingTo: North.
 	
-	aRover := MarsRover locatedAt: 0@0 lookingAt: #E.
+	marsRover execute: 'fb'.
 	
-	aRover doTheseMovements: 'r'.
-	
-	self assert: (aRover isLookingAt: #S).! !
+	self assert: (marsRover isFoundAt: startPoint).! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/5/2020 23:00:28'!
-test09TheRoverCanTurnLeft
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 12:15:37'!
+test08RotationShouldChangeTheRoverHeading
 
-	| aRover |
+	marsRover := MarsRover startMissionAt: startPoint pointingTo: North.
 	
-	aRover := MarsRover locatedAt: 0@0 lookingAt: #E.
+	marsRover execute: 'r'.
 	
-	aRover doTheseMovements: 'l'.
-	
-	self assert: (aRover isLookingAt: #N).! !
+	self assert: (marsRover isPointingTo: East).! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/5/2020 23:40:51'!
-test10TheRoverStopMovingWithAnInvalidMovementRequest
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 12:15:37'!
+test09RotationIsRelativeToTheRoverHeading
 
-	| aRover |
+	marsRover := MarsRover startMissionAt: startPoint pointingTo: North.
 	
-	aRover := MarsRover locatedAt: 0@0 lookingAt: #E.
+	marsRover execute: 'rr'.
 	
-	aRover doTheseMovements: 'lllkrrr'.
+	self assert: (marsRover isPointingTo: South).
+! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 12:15:37'!
+test10LeftRotationIsOppositeOfRightRotation
+
+	marsRover := MarsRover startMissionAt: startPoint pointingTo: North.
 	
-	self assert: (aRover isLookingAt: #S).! !
+	marsRover execute: 'rl'.
+	
+	self assert: (marsRover isPointingTo: North).
+! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 12:15:37'!
+test11TheRoverStopsCommandExecutionAfterAnInvalidRequest
+
+	marsRover := MarsRover startMissionAt: startPoint pointingTo: North.
+	
+	marsRover execute: 'ffwbb'.
+	
+	self assert: (marsRover isFoundAt: north2Steps + startPoint).
+! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 16:36:08'!
+test12TheRoverCanNotBePointedAtAnInvalidCardinalPoint
+	
+	[ marsRover := MarsRover startMissionAt: startPoint pointingTo: #U. self fail] 
+	
+	on: Error 
+	
+	do: [:error | 		self assert: error messageText = MarsRoverNavigateSystem invalidCardinalPointErrorMessage. 
+			self assert: marsRover isNil		].
+	
+	! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 16:36:08'!
+test13TheMissionShouldStartAtAValidPosition
+	
+	[ marsRover := MarsRover startMissionAt: 0 pointingTo: North. self fail] 
+	
+	on: Error 
+	
+	do: [:error | 		self assert: error messageText = MarsRoverNavigateSystem invalidStartingPointMessageError. 
+			self assert: marsRover isNil		].
+	
+	! !
+
+
+!MarsRoverTest methodsFor: 'setup' stamp: 'FL 12/6/2020 17:15:25'!
+setUp
+	
+	North := #N.
+	South := #S.
+	East := #E.
+	West := #O.
+	startPoint := -1@20.
+	north1Step := 1@0.
+	north2Steps := 2@0.
+	east1Step := 0@1.
+	east2Steps := 0@2.! !
 
 
 !classDefinition: #MarsRover category: 'Mars-Rover'!
 Object subclass: #MarsRover
-	instanceVariableNames: 'position cardinalDirection positionIncrement'
+	instanceVariableNames: 'navigateSystem'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Mars-Rover'!
 
-!MarsRover methodsFor: 'initialization' stamp: 'FL 12/5/2020 22:14:41'!
-initializeLocatedAt: aPosition lookingAt: aCardinalDirection 
-	
-	position := aPosition.
-	cardinalDirection := aCardinalDirection.
-	
-	positionIncrement := Dictionary new.
-	
-	positionIncrement at: #N put: 1@0.
-	positionIncrement at: #S put: -1@0.
-	positionIncrement at: #E put: 0@1.
-	positionIncrement at: #O put: 0@-1.! !
-
-
-!MarsRover methodsFor: 'actions' stamp: 'FL 12/5/2020 22:51:02'!
-decrementDirection
-	
-	3 timesRepeat: [self incrementDirection].! !
-
-!MarsRover methodsFor: 'actions' stamp: 'FL 12/5/2020 23:37:55'!
-doTheseMovements: moveSequency 
-	
-	| invalidMovementPosition |
-	
-	invalidMovementPosition := moveSequency findFirst: [:aMovement |		self isAnInvalidMovement: aMovement	].
-	
-	(invalidMovementPosition = 0) ifTrue: [invalidMovementPosition := moveSequency size].
-	
-	(moveSequency copyFrom: 1 to: invalidMovementPosition) do: [:aMovement | 
+!MarsRover methodsFor: 'initialization' stamp: 'FL 12/6/2020 17:20:53'!
+initializeWith: aNavigateSystem
 		
-		aMovement = $f ifTrue: [self moveForward].	
-		aMovement = $b ifTrue: [ self moveBackward ].	
-		aMovement = $r ifTrue: [ self incrementDirection].
-		aMovement = $l ifTrue: [ self decrementDirection].
+	navigateSystem := aNavigateSystem.! !
+
+
+!MarsRover methodsFor: 'testing' stamp: 'FL 12/6/2020 17:20:39'!
+isFoundAt: aWayPoint
+ 
+	^navigateSystem isThePosition: aWayPoint.! !
+
+!MarsRover methodsFor: 'testing' stamp: 'FL 12/6/2020 17:20:39'!
+isPointingTo: aCardinalPoint
+
+	^navigateSystem isTheDirection: aCardinalPoint.! !
+
+
+!MarsRover methodsFor: 'private' stamp: 'FL 12/6/2020 17:37:03'!
+wasTheCommandExecuted: aCommandKey
+	
+	{
+		#f -> [self moveForward].
+		#b -> [self moveBackward].
+		#r -> [self turnRight].
+		#l -> [self turnLeft].
+		
+	} detect: [:actualCommand | (actualCommand key ) = (aCommandKey asSymbol )] 
+		
+	ifFound: [:actualCommand  | (actualCommand value) value. ^true] 
+	
+	ifNone: [^false].! !
+
+
+!MarsRover methodsFor: 'commands' stamp: 'FL 12/6/2020 17:41:06'!
+execute: aCommandSequency
+	
+	| executedCommands theCommandIsValid |
+	
+	executedCommands := 1.
+	theCommandIsValid := true.
+	
+	[executedCommands <= aCommandSequency size and: [theCommandIsValid]] whileTrue: [
+		
+		theCommandIsValid := self wasTheCommandExecuted: (aCommandSequency at: executedCommands).
+		
+		executedCommands := executedCommands + 1.
+		
 	].! !
 
-!MarsRover methodsFor: 'actions' stamp: 'FL 12/5/2020 22:50:17'!
-incrementDirection
-	
-	| newCardinalDirection |
-	cardinalDirection = #N ifTrue: [newCardinalDirection := #E].
-	cardinalDirection = #S ifTrue: [newCardinalDirection := #O].
-	cardinalDirection = #E ifTrue: [newCardinalDirection := #S].
-	cardinalDirection = #O ifTrue: [newCardinalDirection := #N].
-	
-	cardinalDirection := newCardinalDirection.! !
-
-!MarsRover methodsFor: 'actions' stamp: 'FL 12/5/2020 22:15:10'!
+!MarsRover methodsFor: 'commands' stamp: 'FL 12/6/2020 17:20:39'!
 moveBackward
-	
-	position _ position - positionIncrement at: cardinalDirection.! !
 
-!MarsRover methodsFor: 'actions' stamp: 'FL 12/5/2020 22:15:26'!
+	navigateSystem registerBackwardMoving ! !
+
+!MarsRover methodsFor: 'commands' stamp: 'FL 12/6/2020 17:20:39'!
 moveForward
 
-	position _ position + positionIncrement at: cardinalDirection.! !
+	navigateSystem registerForwardMoving ! !
 
+!MarsRover methodsFor: 'commands' stamp: 'FL 12/6/2020 17:20:39'!
+turnLeft
 
-!MarsRover methodsFor: 'testing' stamp: 'FL 12/5/2020 23:32:15'!
-isAnInvalidMovement: aMovement
-	
-	| isInvalid |
-	
-	isInvalid := true.
-	
-	aMovement = $f ifTrue: [isInvalid := false].
-	aMovement = $b ifTrue: [isInvalid := false].
-	aMovement = $r ifTrue: [isInvalid := false].
-	aMovement = $l ifTrue: [isInvalid := false].
-	
-	^isInvalid.! !
+	navigateSystem regirsterLeftRotation ! !
 
-!MarsRover methodsFor: 'testing' stamp: 'FL 12/5/2020 20:53:41'!
-isLocatedAt: aPosition 
-	
-	^position = aPosition.! !
+!MarsRover methodsFor: 'commands' stamp: 'FL 12/6/2020 17:20:39'!
+turnRight
 
-!MarsRover methodsFor: 'testing' stamp: 'FL 12/5/2020 22:20:54'!
-isLookingAt: aCardinalDirection 
-	
-	^aCardinalDirection = cardinalDirection.! !
+	navigateSystem registerRightRotation ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -210,7 +225,88 @@ isLookingAt: aCardinalDirection
 MarsRover class
 	instanceVariableNames: ''!
 
-!MarsRover class methodsFor: 'instance creation' stamp: 'FL 12/5/2020 20:43:47'!
-locatedAt: aPosition lookingAt: aCardinalDirection 
+!MarsRover class methodsFor: 'instance creation' stamp: 'FL 12/6/2020 16:36:08'!
+startMissionAt: aWayPoint pointingTo: aCardinalPoint
 
-	^self new initializeLocatedAt: aPosition lookingAt: aCardinalDirection! !
+	^self new initializeWith: (MarsRoverNavigateSystem at: aWayPoint pointingTo: aCardinalPoint ).! !
+
+
+!classDefinition: #MarsRoverNavigateSystem category: 'Mars-Rover'!
+Object subclass: #MarsRoverNavigateSystem
+	instanceVariableNames: 'wayPoint directorPoint'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Mars-Rover'!
+
+!MarsRoverNavigateSystem methodsFor: 'initialization' stamp: 'FL 12/6/2020 10:16:33'!
+initializeAt: aWayPoint pointingTo: aDirectorPoint
+
+	wayPoint := aWayPoint.
+	
+	directorPoint := aDirectorPoint.! !
+
+
+!MarsRoverNavigateSystem methodsFor: 'moving registration' stamp: 'FL 12/6/2020 16:08:12'!
+regirsterLeftRotation
+
+	directorPoint := (directorPoint y)@(-1 * directorPoint x).! !
+
+!MarsRoverNavigateSystem methodsFor: 'moving registration' stamp: 'FL 12/6/2020 16:07:53'!
+registerBackwardMoving
+
+	wayPoint := wayPoint - directorPoint.! !
+
+!MarsRoverNavigateSystem methodsFor: 'moving registration' stamp: 'FL 12/6/2020 16:08:42'!
+registerForwardMoving
+
+	wayPoint := wayPoint + directorPoint.! !
+
+!MarsRoverNavigateSystem methodsFor: 'moving registration' stamp: 'FL 12/6/2020 16:08:26'!
+registerRightRotation
+
+	directorPoint := (-1 * directorPoint y)@(directorPoint x).! !
+
+
+!MarsRoverNavigateSystem methodsFor: 'testing' stamp: 'FL 12/6/2020 16:20:38'!
+isTheDirection: aCardinalPoint
+
+	^(self class cardinalPointToDirectorPoint: aCardinalPoint) = directorPoint! !
+
+!MarsRoverNavigateSystem methodsFor: 'testing' stamp: 'FL 12/6/2020 10:32:44'!
+isThePosition: aWayPoint
+
+	^aWayPoint = wayPoint.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'MarsRoverNavigateSystem class' category: 'Mars-Rover'!
+MarsRoverNavigateSystem class
+	instanceVariableNames: ''!
+
+!MarsRoverNavigateSystem class methodsFor: 'instance creation' stamp: 'FL 12/6/2020 17:27:42'!
+at: aWayPoint pointingTo: aCardinalPoint
+	
+	(aWayPoint isKindOf: Point) ifFalse: [self error: self invalidStartingPointMessageError].
+		
+	^self new initializeAt: aWayPoint pointingTo: (self cardinalPointToDirectorPoint: aCardinalPoint).! !
+
+
+!MarsRoverNavigateSystem class methodsFor: 'accessing' stamp: 'FL 12/6/2020 17:27:24'!
+cardinalPointToDirectorPoint: aCardinalPoint
+
+	{#N->(1@0). #S->(-1@0). #E->(0@1). #O->(0@-1)} 	detect: [:aDirectionMap | aDirectionMap key = aCardinalPoint ] 
+	
+	ifFound: [:aDirectionMap | ^aDirectionMap value] 
+	
+	ifNone: [self error: self invalidCardinalPointErrorMessage].! !
+
+
+!MarsRoverNavigateSystem class methodsFor: 'error messages' stamp: 'FL 12/6/2020 16:12:26'!
+invalidCardinalPointErrorMessage
+
+	^ 'Invalid cardinal point'! !
+
+!MarsRoverNavigateSystem class methodsFor: 'error messages' stamp: 'FL 12/6/2020 16:25:06'!
+invalidStartingPointMessageError
+
+	^'You traing to use an invalid start mission point'! !
