@@ -104,27 +104,30 @@ test11TheRoverStopsCommandExecutionAfterAnInvalidRequest
 	self assert: (marsRover isFoundAt: north2Steps + startPoint).
 ! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 16:36:08'!
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 21:24:00'!
 test12TheRoverCanNotBePointedAtAnInvalidCardinalPoint
 	
-	[ marsRover := MarsRover startMissionAt: startPoint pointingTo: #U. self fail] 
+	self should: [ marsRover := MarsRover startMissionAt: startPoint pointingTo: #U.] 
 	
-	on: Error 
+	raise: Error 
 	
-	do: [:error | 		self assert: error messageText = MarsRoverNavigateSystem invalidCardinalPointErrorMessage. 
-			self assert: marsRover isNil		].
+	withExceptionDo: [ :error | 		self assert: error messageText = MarsRoverNavigateSystem invalidCardinalPointErrorMessage. 
+					self assert: marsRover isNil		].
 	
 	! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 16:36:08'!
+!MarsRoverTest methodsFor: 'tests' stamp: 'FL 12/6/2020 21:24:13'!
 test13TheMissionShouldStartAtAValidPosition
 	
-	[ marsRover := MarsRover startMissionAt: 0 pointingTo: North. self fail] 
+	self should: [ marsRover := MarsRover startMissionAt: 0 pointingTo: North.] 
 	
-	on: Error 
+	raise: Error
 	
-	do: [:error | 		self assert: error messageText = MarsRoverNavigateSystem invalidStartingPointMessageError. 
-			self assert: marsRover isNil		].
+	withExceptionDo: [ :error | 		self assert: error messageText = MarsRoverNavigateSystem invalidStartingPointMessageError. 
+					self assert: marsRover isNil		].
+
+	
+	
 	
 	! !
 
