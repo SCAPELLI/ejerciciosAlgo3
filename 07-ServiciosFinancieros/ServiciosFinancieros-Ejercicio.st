@@ -134,8 +134,20 @@ test08PortfolioHasBalanceAsSumOfEachComposedAccount
 	
 	self assert: portfolio balance equals: 150 * peso.! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'FL 12/8/2020 16:45:29'!
-test09AnyOfTheComposedAccountOfPortfolioHasRegisteredASpecificTransaction
+!PortfolioTest methodsFor: 'tests' stamp: 'SC 12/9/2020 20:27:42'!
+test09ThePorfolioHasRegisteredAdepositRegisteredInAnAccountThatComposesIt
+
+	|   portfolio anAccount deposit|
+	
+	anAccount := ReceptiveAccount new.
+	portfolio := Portfolio with: anAccount.
+	deposit := Deposit for: 50 * peso.
+	anAccount register: deposit.
+	
+	self assert: (portfolio hasRegistered: deposit).! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'SC 12/9/2020 20:19:27'!
+test10AnyOfTheComposedAccountOfPortfolioHasRegisteredASpecificTransaction
 
 	|   portfolio anAccount deposit|
 	
@@ -226,44 +238,40 @@ test06ReceptiveAccountDoNotKnowNotRegisteredTransactions
 
 !classDefinition: #TransferenceTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #TransferenceTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'emitter receiver transference'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!TransferenceTest methodsFor: 'tests' stamp: 'FL 12/8/2020 16:20:44'!
+!TransferenceTest methodsFor: 'tests' stamp: 'SC 12/9/2020 20:53:04'!
 test01CanNotTransferWithZeroAsAmount
 
-	| receiver emitter transference |
-	
 	emitter := ReceptiveAccount new.
 	receiver := ReceptiveAccount new.
 		
-	self should:  [transference := Transference from: emitter to: receiver for: 0 * peso.] 
+	self should:  [ Transference from: emitter to: receiver for: 0 * peso.] 
 	
 	raise: Error 
 	
 	withMessageText: Transference invalidTransferenceAmountErrorMessage.
 ! !
 
-!TransferenceTest methodsFor: 'tests' stamp: 'FL 12/8/2020 14:07:05'!
+!TransferenceTest methodsFor: 'tests' stamp: 'SC 12/9/2020 20:53:04'!
 test02CanNotTransferAUncoveredAmount
 
-	| receiver emitter transference |
-	
 	emitter := ReceptiveAccount new.
 	receiver := ReceptiveAccount new.
 		
-	self should: [transference := Transference from: emitter to: receiver for: 50 * peso.] 
+	self should: [Transference from: emitter to: receiver for: 50 * peso.] 
 	
-	raise: Error withMessageText: Transference insufficientFundsFromTheEmitter.
+	raise: Error 
+	
+	withMessageText: Transference insufficientFundsFromTheEmitter.
 	! !
 
-!TransferenceTest methodsFor: 'tests' stamp: 'FL 12/8/2020 16:26:58'!
+!TransferenceTest methodsFor: 'tests' stamp: 'SC 12/9/2020 20:56:34'!
 test03PartsOfTheTransferenceHasRegisteredATransaction
 
-	| receiver emitter transference |
-	
 	emitter := ReceptiveAccount new.
 	receiver := ReceptiveAccount new.
 	
@@ -271,14 +279,14 @@ test03PartsOfTheTransferenceHasRegisteredATransaction
 	
 	transference := Transference from: emitter to: receiver for: 50 * peso.
 	
-	self assert: (emitter hasRegistered: transference withdrawPart).
+	self assert: (emitter hasRegistered: transference originPart).
 	self assert: emitter balance equals: 150 * peso.
-	self assert: (receiver hasRegistered: transference depositPart).
+	self assert: (receiver hasRegistered: transference destinationPart).
 	self assert: receiver balance equals: 50 * peso.! !
 
-!TransferenceTest methodsFor: 'tests' stamp: 'FL 12/8/2020 16:27:28'!
+!TransferenceTest methodsFor: 'tests' stamp: 'SC 12/9/2020 20:53:16'!
 test04TransferencePartsKnowEachOther
-	| receiver emitter transference withdrawByTransference depositByTransference |
+	| originTransferPart destinationTransferPart |
 	
 	emitter := ReceptiveAccount new.
 	receiver := ReceptiveAccount new.
@@ -287,19 +295,17 @@ test04TransferencePartsKnowEachOther
 	
 	transference := Transference from: emitter to: receiver for: 50 * peso.
 	
-	withdrawByTransference := transference withdrawPart.
-	depositByTransference := transference depositPart.
+	originTransferPart := transference originPart.
+	destinationTransferPart := transference destinationPart.
 	
-	self assert: withdrawByTransference counterpart equals: depositByTransference.
-	self assert: depositByTransference counterpart equals: withdrawByTransference.
+	self assert: originTransferPart counterpart equals: destinationTransferPart.
+	self assert: destinationTransferPart counterpart equals: originTransferPart.
 	
 	! !
 
-!TransferenceTest methodsFor: 'tests' stamp: 'FL 12/8/2020 15:40:51'!
+!TransferenceTest methodsFor: 'tests' stamp: 'SC 12/9/2020 20:53:16'!
 test05TransferenceHasValueAsignated
 
-	| receiver emitter transference |
-	
 	emitter := ReceptiveAccount new.
 	receiver := ReceptiveAccount new.
 	
@@ -412,6 +418,64 @@ Withdraw class
 for: aValue
 
 	^ self new initializeFor: aValue ! !
+
+
+!classDefinition: #OriginTransferPart category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #OriginTransferPart
+	instanceVariableNames: 'originTransference'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!OriginTransferPart methodsFor: 'initialization' stamp: 'FL 12/8/2020 15:29:50'!
+initializeFrom: aOriginTransference 
+
+	originTransference := aOriginTransference.! !
+
+
+!OriginTransferPart methodsFor: 'accessing' stamp: 'FL 12/8/2020 15:28:32'!
+accountMovement
+
+	^-1 * originTransference value.! !
+
+!OriginTransferPart methodsFor: 'accessing' stamp: 'SC 12/9/2020 20:02:46'!
+counterpart
+
+	^originTransference destinationPart.! !
+
+!OriginTransferPart methodsFor: 'accessing' stamp: 'FL 12/8/2020 15:32:00'!
+value
+
+	^originTransference value.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'OriginTransferPart class' category: 'ServiciosFinancieros-Ejercicio'!
+OriginTransferPart class
+	instanceVariableNames: ''!
+
+!OriginTransferPart class methodsFor: 'instance creation' stamp: 'FL 12/8/2020 15:31:11'!
+from: aOriginTransference 
+
+	^self new initializeFrom: aOriginTransference ! !
+
+
+!classDefinition: #DestinationTransferPart category: 'ServiciosFinancieros-Ejercicio'!
+OriginTransferPart subclass: #DestinationTransferPart
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!DestinationTransferPart methodsFor: 'accessing' stamp: 'FL 12/8/2020 15:32:52'!
+accountMovement
+
+	^self value.! !
+
+!DestinationTransferPart methodsFor: 'accessing' stamp: 'SC 12/9/2020 20:02:20'!
+counterpart
+
+	^originTransference originPart.! !
 
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
@@ -584,32 +648,32 @@ Object subclass: #Transference
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Transference methodsFor: 'initialization' stamp: 'FL 12/8/2020 15:30:32'!
+!Transference methodsFor: 'initialization' stamp: 'SC 12/9/2020 19:57:11'!
 initializeFrom: aEmitterAccount to: aReceiverAccount for: transferenceAmount 
 
 	value := transferenceAmount.
 	
-	withdrawPart := WithdrawByTransference from: self.
-	depositPart := DepositByTransference from: self.	
+	withdrawPart := OriginTransferPart from: self.
+	depositPart := DestinationTransferPart from: self.	
 	
 	aEmitterAccount register: withdrawPart.
 	aReceiverAccount register: depositPart.! !
 
 
-!Transference methodsFor: 'accessing' stamp: 'FL 12/8/2020 16:23:15'!
-depositPart
+!Transference methodsFor: 'accessing' stamp: 'SC 12/9/2020 20:02:46'!
+destinationPart
 	
 	^depositPart.! !
+
+!Transference methodsFor: 'accessing' stamp: 'SC 12/9/2020 20:02:20'!
+originPart
+	
+	^withdrawPart.! !
 
 !Transference methodsFor: 'accessing' stamp: 'FL 12/8/2020 15:12:11'!
 value
 
 	^value! !
-
-!Transference methodsFor: 'accessing' stamp: 'FL 12/8/2020 15:11:12'!
-withdrawPart
-	
-	^withdrawPart.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -641,61 +705,3 @@ validateEmitterFunds: transferenceAmount for: aEmitterAccount
 
 	(transferenceAmount > 0) ifFalse: [self error: self invalidTransferenceAmountErrorMessage].
 	(aEmitterAccount balance >= transferenceAmount ) ifFalse: [self error: self insufficientFundsFromTheEmitter]! !
-
-
-!classDefinition: #WithdrawByTransference category: 'ServiciosFinancieros-Ejercicio'!
-Object subclass: #WithdrawByTransference
-	instanceVariableNames: 'originTransference'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!WithdrawByTransference methodsFor: 'initialization' stamp: 'FL 12/8/2020 15:29:50'!
-initializeFrom: aOriginTransference 
-
-	originTransference := aOriginTransference.! !
-
-
-!WithdrawByTransference methodsFor: 'accessing' stamp: 'FL 12/8/2020 15:28:32'!
-accountMovement
-
-	^-1 * originTransference value.! !
-
-!WithdrawByTransference methodsFor: 'accessing' stamp: 'FL 12/8/2020 16:24:26'!
-counterpart
-
-	^originTransference depositPart.! !
-
-!WithdrawByTransference methodsFor: 'accessing' stamp: 'FL 12/8/2020 15:32:00'!
-value
-
-	^originTransference value.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'WithdrawByTransference class' category: 'ServiciosFinancieros-Ejercicio'!
-WithdrawByTransference class
-	instanceVariableNames: ''!
-
-!WithdrawByTransference class methodsFor: 'instance creation' stamp: 'FL 12/8/2020 15:31:11'!
-from: aOriginTransference 
-
-	^self new initializeFrom: aOriginTransference ! !
-
-
-!classDefinition: #DepositByTransference category: 'ServiciosFinancieros-Ejercicio'!
-WithdrawByTransference subclass: #DepositByTransference
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!DepositByTransference methodsFor: 'accessing' stamp: 'FL 12/8/2020 15:32:52'!
-accountMovement
-
-	^self value.! !
-
-!DepositByTransference methodsFor: 'accessing' stamp: 'FL 12/8/2020 16:23:56'!
-counterpart
-
-	^originTransference withdrawPart.! !
