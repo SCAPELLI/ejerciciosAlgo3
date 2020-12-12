@@ -1,97 +1,3 @@
-!classDefinition: #AccountSummaryTest category: 'ServiciosFinancieros-Ejercicio'!
-TestCase subclass: #AccountSummaryTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!AccountSummaryTest methodsFor: 'tests' stamp: 'FL 12/12/2020 13:09:56'!
-test01AnAccoutWithNoTransactionHasNoMovementsSummary
-
-	| report account |
-	
-	account _ ReceptiveAccount new.
-	report _ AccountSummary for: account.
-	
-	self	assert: 'Balance = 0 pesos'		equals: report printReport.! !
-
-!AccountSummaryTest methodsFor: 'tests' stamp: 'FL 12/12/2020 13:11:51'!
-test02AnAccountTransactionShouldChangeSummary
-
-	| account report |
-	
-	account _ ReceptiveAccount new.
-	account register: (Deposit for: 20 * peso).
-	report _ AccountSummary for: account.
-	
-	self deny: ('Balance = 0 pesos'		= report printReport).! !
-
-!AccountSummaryTest methodsFor: 'tests' stamp: 'FL 12/12/2020 13:12:32'!
-test03test03ValuesOfRecordedTransactionsAreDistinguished
-
-	| account report |
-	
-	account _ ReceptiveAccount new.
-	account register: (Deposit for: 80 * peso).
-	report _ AccountSummary for: account.
-	
-	self	assert: 'Depósito por 80 pesos Balance = 80 pesos'		equals: report printReport.! !
-
-!AccountSummaryTest methodsFor: 'tests' stamp: 'FL 12/12/2020 13:12:57'!
-test04MultipleTransactionsCanBeRegister
-
-	| account report |
-	
-	account _ ReceptiveAccount new.
-	account register: (Deposit for: 20 * peso).
-	account register: (Deposit for: 80 * peso).
-	report _ AccountSummary for: account.
-	
-	self	assert: 'Depósito por 20 pesos Depósito por 80 pesos Balance = 100 pesos'		equals: report printReport.! !
-
-!AccountSummaryTest methodsFor: 'tests' stamp: 'FL 12/12/2020 13:13:15'!
-test05WithdrawsReduceBalance
-
-	| account report |
-	
-	account _ ReceptiveAccount new.
-	
-	account register: (Deposit for: 20 * peso).
-	account register: (Withdraw for: 20 * peso).
-	report _ AccountSummary for: account.
-		
-	self	assert: 'Depósito por 20 pesos Extracción por 20 pesos Balance = 0 pesos'		equals: report printReport.! !
-
-!AccountSummaryTest methodsFor: 'tests' stamp: 'FL 12/12/2020 13:06:52'!
-test06
-
-	| originAccount destinationAccount originReport destinationReport |
-	
-	originAccount _ ReceptiveAccount new.
-	destinationAccount _ ReceptiveAccount new.
-	originReport _ AccountSummary for: originAccount .	
-	destinationReport _ AccountSummary for: destinationAccount.
-
-	originAccount register: (Deposit for: 20 * peso).
-	Transference from: originAccount to: destinationAccount for: 10 * peso.
-	
-	self	assert: 'Depósito por 20 pesos Salida por transferencia de 10 pesos Balance = 10 pesos'		equals: originReport printReport.
-	self	assert: 'Entrada por transferencia de 10 pesos Balance = 10 pesos'		equals: destinationReport printReport.! !
-
-!AccountSummaryTest methodsFor: 'tests' stamp: 'FL 12/12/2020 13:13:40'!
-test07AReportCanBeBuildFromPortfolioTransactions
-
-	| account  portfolio report  |
-	
-	account _ ReceptiveAccount new.
-	portfolio _ Portfolio with: account.
-	report _ AccountSummary for: portfolio.
-
-	account register: (Deposit for: 20 * peso).
-	
-	self	assert: 'Depósito por 20 pesos Balance = 20 pesos'		equals: report printReport.! !
-
-
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #PortfolioTest
 	instanceVariableNames: ''
@@ -330,6 +236,141 @@ test06ReceptiveAccountDoNotKnowNotRegisteredTransactions
 ! !
 
 
+!classDefinition: #ReportTest category: 'ServiciosFinancieros-Ejercicio'!
+TestCase subclass: #ReportTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:22'!
+test01AnAccoutWithNoTransactionHasNoMovementsSummary
+
+	| report account |
+	
+	account _ ReceptiveAccount new.
+	report _ Report for: account.
+	
+	self	assert: 'Balance = 0 pesos'		equals: report accountSummary.! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:21'!
+test02AnAccountTransactionShouldChangeSummary
+
+	| account report |
+	
+	account _ ReceptiveAccount new.
+	account register: (Deposit for: 20 * peso).
+	report _ Report for: account.
+	
+	self deny: ('Balance = 0 pesos'		= report accountSummary).! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:21'!
+test03test03ValuesOfRecordedTransactionsAreDistinguished
+
+	| account report |
+	
+	account _ ReceptiveAccount new.
+	account register: (Deposit for: 80 * peso).
+	report _ Report for: account.
+	
+	self	assert: 'Depósito por 80 pesos Balance = 80 pesos'		equals: report accountSummary.! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:21'!
+test04MultipleTransactionsCanBeRegister
+
+	| account report |
+	
+	account _ ReceptiveAccount new.
+	account register: (Deposit for: 20 * peso).
+	account register: (Deposit for: 80 * peso).
+	report _ Report for: account.
+	
+	self	assert: 'Depósito por 20 pesos Depósito por 80 pesos Balance = 100 pesos'		equals: report accountSummary.! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:21'!
+test05WithdrawsReduceBalance
+
+	| account report |
+	
+	account _ ReceptiveAccount new.
+	
+	account register: (Deposit for: 20 * peso).
+	account register: (Withdraw for: 20 * peso).
+	report _ Report for: account.
+		
+	self	assert: 'Depósito por 20 pesos Extracción por 20 pesos Balance = 0 pesos'		equals: report accountSummary.! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:21'!
+test06
+
+	| originAccount destinationAccount originReport destinationReport |
+	
+	originAccount _ ReceptiveAccount new.
+	destinationAccount _ ReceptiveAccount new.
+	originReport _ Report for: originAccount .	
+	destinationReport _ Report for: destinationAccount.
+
+	originAccount register: (Deposit for: 20 * peso).
+	Transference from: originAccount to: destinationAccount for: 10 * peso.
+	
+	self	assert: 'Depósito por 20 pesos Salida por transferencia de 10 pesos Balance = 10 pesos'		equals: originReport accountSummary.
+	self	assert: 'Entrada por transferencia de 10 pesos Balance = 10 pesos'		equals: destinationReport accountSummary.! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:21'!
+test07AReportCanBeBuildFromPortfolioTransactions
+
+	| account  portfolio report  |
+	
+	account _ ReceptiveAccount new.
+	portfolio _ Portfolio with: account.
+	report _ Report for: portfolio.
+
+	account register: (Deposit for: 20 * peso).
+	
+	self	assert: 'Depósito por 20 pesos Balance = 20 pesos'		equals: report accountSummary.! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 20:06:05'!
+test08TransferenceNetShouldBeZeroWhenAccountHasNoTransferMovements
+
+	| account  report  |
+	
+	account _ ReceptiveAccount new.
+	
+	report _ Report for: account.
+	
+	account register: (Deposit for: 900 * peso).
+	
+	self	assert: 'Transference Net = 0 pesos'		equals: report transferenceNet.! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 20:15:32'!
+test09ATransferenceAffectTransferNet
+
+	| originAccount destinationAccount  report  |
+	
+	originAccount _ ReceptiveAccount new.
+	destinationAccount _ ReceptiveAccount new.
+	report _ Report for: originAccount.
+	
+	originAccount register: (Deposit for: 900 * peso).
+	Transference from: originAccount to: destinationAccount for: 100* peso.
+	
+	self	assert: 'Transference Net = -100 pesos'		equals: report transferenceNet.! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 20:25:42'!
+test10TransferNetShouldBeAPartialBalanceForTransferences
+	| originAccount destinationAccount  report  |
+	
+	originAccount _ ReceptiveAccount new.
+	destinationAccount _ ReceptiveAccount new.
+	report _ Report for: originAccount.
+	
+	originAccount register: (Deposit for: 900 * peso).
+	Transference from: originAccount to: destinationAccount for: 450* peso.
+	Transference from: destinationAccount to: originAccount for: 200* peso.
+	
+	self	assert: 'Transference Net = -250 pesos'		equals: report transferenceNet.! !
+
+
 !classDefinition: #TransferenceTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #TransferenceTest
 	instanceVariableNames: 'emitter receiver transference'
@@ -408,58 +449,6 @@ test05TransferenceHasValueAsignated
 	transference := Transference from: emitter to: receiver for: 50 * peso.
 	
 	self assert: transference value equals: 50 * peso.! !
-
-
-!classDefinition: #AccountSummary category: 'ServiciosFinancieros-Ejercicio'!
-Object subclass: #AccountSummary
-	instanceVariableNames: 'account'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!AccountSummary methodsFor: 'initialization' stamp: 'FL 12/12/2020 13:16:36'!
-initializeFor: anAccount
-
-	account _ anAccount.! !
-
-
-!AccountSummary methodsFor: 'printing' stamp: 'FL 12/12/2020 13:16:05'!
-printReport
-
-	| text |
-	
-	text _ ''.
-	
-	account withAllMyTransactionsDo:
-	
-		[:aTransaction | text _ text append: (self headerFor: aTransaction), aTransaction value asString, ' '].
-		
-	^text append: 'Balance = ', account balance asString.! !
-
-
-!AccountSummary methodsFor: 'private' stamp: 'FL 12/12/2020 12:57:22'!
-headerFor: aTransaction
-
-	{
-		Deposit -> 'Depósito por '.
-		Withdraw -> 'Extracción por '.
-		OriginTransferPart -> 'Salida por transferencia de '.
-		DestinationTransferPart -> 'Entrada por transferencia de '
-		
-	} detect: [:aHeader | aTransaction class = aHeader key] ifFound: [:aHeader | ^aHeader value] 
-	
-	ifNone: [self error: 'There is no header for the class ',aTransaction class asString].! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'AccountSummary class' category: 'ServiciosFinancieros-Ejercicio'!
-AccountSummary class
-	instanceVariableNames: ''!
-
-!AccountSummary class methodsFor: 'instance creation' stamp: 'FL 12/12/2020 12:40:09'!
-for: anAccount 
-
-	^self new initializeFor: anAccount ! !
 
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
@@ -796,6 +785,75 @@ isComposedBy: anAccount
 withAllMyTransactionsDo: aBlock
  
 	transactions do: [:aTransaction | aBlock value: aTransaction].! !
+
+
+!classDefinition: #Report category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Report
+	instanceVariableNames: 'account'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Report methodsFor: 'initialization' stamp: 'FL 12/12/2020 13:16:36'!
+initializeFor: anAccount
+
+	account _ anAccount.! !
+
+
+!Report methodsFor: 'printing' stamp: 'FL 12/12/2020 19:58:15'!
+accountSummary
+
+	| text |
+	
+	text _ ''.
+	
+	account withAllMyTransactionsDo:
+	
+		[:aTransaction | text _ text append: (self headerFor: aTransaction), aTransaction value asString, ' '].
+		
+	^text append: 'Balance = ', account balance asString.! !
+
+
+!Report methodsFor: 'private' stamp: 'FL 12/12/2020 12:57:22'!
+headerFor: aTransaction
+
+	{
+		Deposit -> 'Depósito por '.
+		Withdraw -> 'Extracción por '.
+		OriginTransferPart -> 'Salida por transferencia de '.
+		DestinationTransferPart -> 'Entrada por transferencia de '
+		
+	} detect: [:aHeader | aTransaction class = aHeader key] ifFound: [:aHeader | ^aHeader value] 
+	
+	ifNone: [self error: 'There is no header for the class ',aTransaction class asString].! !
+
+
+!Report methodsFor: 'accessing' stamp: 'FL 12/12/2020 20:14:43'!
+transferenceNet
+	
+	| transferNet |
+	
+	transferNet _ 0 * peso.
+	
+	account withAllMyTransactionsDo: [:aTransaction | (aTransaction isKindOf: OriginTransferPart) ifTrue: [
+			
+			transferNet _ transferNet + aTransaction accountMovement.
+			
+		]
+	].
+	
+	^'Transference Net = ', transferNet asString.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Report class' category: 'ServiciosFinancieros-Ejercicio'!
+Report class
+	instanceVariableNames: ''!
+
+!Report class methodsFor: 'instance creation' stamp: 'FL 12/12/2020 12:40:09'!
+for: anAccount 
+
+	^self new initializeFor: anAccount ! !
 
 
 !classDefinition: #Transference category: 'ServiciosFinancieros-Ejercicio'!
