@@ -243,132 +243,238 @@ TestCase subclass: #ReportTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:22'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 15:31:51'!
 test01AnAccoutWithNoTransactionHasNoMovementsSummary
 
 	| report account |
 	
 	account _ ReceptiveAccount new.
-	report _ Report for: account.
+	report _ AccountSummary for: account.
 	
-	self	assert: 'Balance = 0 pesos'		equals: report accountSummary.! !
+	self	assert: 'Balance = 0 pesos'		equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:21'!
-test02AnAccountTransactionShouldChangeSummary
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 16:34:51'!
+test02AccountTransactionsShouldChangeAccountSummary
 
 	| account report |
 	
 	account _ ReceptiveAccount new.
 	account register: (Deposit for: 20 * peso).
-	report _ Report for: account.
+	report _ AccountSummary for: account.
 	
-	self deny: ('Balance = 0 pesos'		= report accountSummary).! !
+	self deny: ('Balance = 0 pesos'		= report printReport).! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:21'!
-test03test03ValuesOfRecordedTransactionsAreDistinguished
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 16:35:18'!
+test03ValuesOfRecordedTransactionsAreDistinguished
 
-	| account report |
+	| account report expectedReportText |
 	
 	account _ ReceptiveAccount new.
 	account register: (Deposit for: 80 * peso).
-	report _ Report for: account.
+	report _ AccountSummary for: account.
+	expectedReportText _ 'Depósito por 80 pesos',self newLine, 'Balance = 80 pesos'	.
 	
-	self	assert: 'Depósito por 80 pesos Balance = 80 pesos'		equals: report accountSummary.! !
+	self	assert: expectedReportText equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:21'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 19:58:15'!
 test04MultipleTransactionsCanBeRegister
 
-	| account report |
+	| account report expectedReportText |
 	
 	account _ ReceptiveAccount new.
 	account register: (Deposit for: 20 * peso).
 	account register: (Deposit for: 80 * peso).
-	report _ Report for: account.
+	report _ AccountSummary for: account.
+	expectedReportText _ 'Depósito por 20 pesos', self newLine, 
+					    'Depósito por 80 pesos', self newLine,
+				           'Balance = 100 pesos'.
 	
-	self	assert: 'Depósito por 20 pesos Depósito por 80 pesos Balance = 100 pesos'		equals: report accountSummary.! !
+	self	assert: expectedReportText 	equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:21'!
-test05WithdrawsReduceBalance
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 19:58:56'!
+test05AccountSummaryReflectsAccountBalance
 
-	| account report |
+	| account report expectedReportText |
 	
 	account _ ReceptiveAccount new.
 	
 	account register: (Deposit for: 20 * peso).
 	account register: (Withdraw for: 20 * peso).
-	report _ Report for: account.
-		
-	self	assert: 'Depósito por 20 pesos Extracción por 20 pesos Balance = 0 pesos'		equals: report accountSummary.! !
+	report _ AccountSummary for: account.
+	expectedReportText	 _ 'Depósito por 20 pesos', self newLine,
+					    'Extracción por 20 pesos', self newLine,
+					    'Balance = 0 pesos'.
+	
+	self	assert: expectedReportText 		equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:21'!
-test06
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 19:59:51'!
+test06TransferencesAreContemplatedInTheAccountSummary
 
-	| originAccount destinationAccount originReport destinationReport |
+	| originAccount destinationAccount originReport destinationReport expectedReportTextInOrigin expectedReportTextInDestination |
 	
 	originAccount _ ReceptiveAccount new.
 	destinationAccount _ ReceptiveAccount new.
-	originReport _ Report for: originAccount .	
-	destinationReport _ Report for: destinationAccount.
+	originReport _ AccountSummary for: originAccount .	
+	destinationReport _ AccountSummary for: destinationAccount.
 
 	originAccount register: (Deposit for: 20 * peso).
 	Transference from: originAccount to: destinationAccount for: 10 * peso.
+	expectedReportTextInOrigin _ 'Depósito por 20 pesos', self newLine, 'Salida por transferencia de 10 pesos', self newLine, 'Balance = 10 pesos'.
+	expectedReportTextInDestination _ 'Entrada por transferencia de 10 pesos', self newLine, 'Balance = 10 pesos'.
 	
-	self	assert: 'Depósito por 20 pesos Salida por transferencia de 10 pesos Balance = 10 pesos'		equals: originReport accountSummary.
-	self	assert: 'Entrada por transferencia de 10 pesos Balance = 10 pesos'		equals: destinationReport accountSummary.! !
+	self	assert: expectedReportTextInOrigin 		equals: originReport printReport.
+	self	assert: expectedReportTextInDestination equals: destinationReport printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 19:58:21'!
-test07AReportCanBeBuildFromPortfolioTransactions
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 15:47:38'!
+test07ASummaryCanBeBuildFromPortfolioTransactions
 
-	| account  portfolio report  |
+	| account  portfolio report expectedReportText |
 	
 	account _ ReceptiveAccount new.
 	portfolio _ Portfolio with: account.
-	report _ Report for: portfolio.
-
+	report _ AccountSummary for: portfolio.
 	account register: (Deposit for: 20 * peso).
-	
-	self	assert: 'Depósito por 20 pesos Balance = 20 pesos'		equals: report accountSummary.! !
+	expectedReportText _ 'Depósito por 20 pesos', self newLine, 'Balance = 20 pesos'.
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 20:06:05'!
-test08TransferenceNetShouldBeZeroWhenAccountHasNoTransferMovements
+	
+	self	assert: 	expectedReportText 	equals: report printReport.! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 16:38:15'!
+test08TransferenceNetShouldBeZeroIfAccountHasNoTransferences
 
 	| account  report  |
 	
 	account _ ReceptiveAccount new.
 	
-	report _ Report for: account.
+	report _ TransferNet for: account.
 	
 	account register: (Deposit for: 900 * peso).
 	
-	self	assert: 'Transference Net = 0 pesos'		equals: report transferenceNet.! !
+	self	assert: 'Transference Net = 0 pesos'		equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 20:15:32'!
-test09ATransferenceAffectTransferNet
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 16:41:46'!
+test09AccountTransferencesAffectTransferNetReport
 
 	| originAccount destinationAccount  report  |
 	
 	originAccount _ ReceptiveAccount new.
 	destinationAccount _ ReceptiveAccount new.
-	report _ Report for: originAccount.
+	report _ TransferNet for: originAccount.
 	
 	originAccount register: (Deposit for: 900 * peso).
 	Transference from: originAccount to: destinationAccount for: 100* peso.
 	
-	self	assert: 'Transference Net = -100 pesos'		equals: report transferenceNet.! !
+	self	assert: 'Transference Net = -100 pesos'		equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/12/2020 20:25:42'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 15:31:10'!
 test10TransferNetShouldBeAPartialBalanceForTransferences
 	| originAccount destinationAccount  report  |
 	
 	originAccount _ ReceptiveAccount new.
 	destinationAccount _ ReceptiveAccount new.
-	report _ Report for: originAccount.
+	report _ TransferNet for: originAccount.
 	
 	originAccount register: (Deposit for: 900 * peso).
 	Transference from: originAccount to: destinationAccount for: 450* peso.
 	Transference from: destinationAccount to: originAccount for: 200* peso.
 	
-	self	assert: 'Transference Net = -250 pesos'		equals: report transferenceNet.! !
+	self	assert: 'Transference Net = -250 pesos'		equals: report printReport.! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 20:05:04'!
+test11APortfolioWithAnAccountTreeShouldIdentOneTime
+	| account portfolio report  expectedReportText |
+	
+	account _ ReceptiveAccount named: 'Cuenta de Santa Claus'.
+	portfolio _ Portfolio named: 'Portfolio de Navidad' with: account.
+	
+	report _ PortfolioTreePrinter for: portfolio.
+	
+	expectedReportText _ 'Portfolio de Navidad', self newLine,
+					     self ident, 'Cuenta de Santa Claus'.
+	
+	self	assert: expectedReportText 		equals: report printReport.! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 22:06:14'!
+test12APortfolioTreeCanHaveManyAccounts
+
+	| santaAccount rudolphAccount christmasPortfolio report  expectedReportText |
+	
+	santaAccount _ ReceptiveAccount named: 'Cuenta de Santa Claus'.
+	rudolphAccount _ ReceptiveAccount named: 'Cuenta de Rodolfo el reno'.
+	christmasPortfolio _ Portfolio named: 'Portfolio de Navidad' with: santaAccount with: rudolphAccount .
+	report _ PortfolioTreePrinter for: christmasPortfolio.
+	
+	expectedReportText _ 'Portfolio de Navidad', self newLine,
+						self ident, 	'Cuenta de Santa Claus', self newLine, 
+						self ident, 'Cuenta de Rodolfo el reno'.
+	
+	self assert: expectedReportText equals: report printReport.
+	! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 02:18:30'!
+test13APortfolioTreeRecognizeMultipleLevelsIdentation
+
+	| santaAccount rudolphAccount christmasPortfolio reindeerPortfolio report  expectedReportText |
+	
+	santaAccount _ ReceptiveAccount named: 'Cuenta de Santa Claus'.
+	rudolphAccount _ ReceptiveAccount named: 'Cuenta de Rodolfo el reno'.
+	reindeerPortfolio _ Portfolio named: 'Portfolio de renos' with: rudolphAccount.
+	christmasPortfolio _ Portfolio named: 'Portfolio de Navidad' with: santaAccount with: reindeerPortfolio.
+	report _ PortfolioTreePrinter for: christmasPortfolio.
+	expectedReportText _ 'Portfolio de Navidad', self newLine,
+						self ident, 	'Cuenta de Santa Claus', self newLine,
+						self ident, 	'Portfolio de renos',self newLine, 
+						self ident, self ident, 'Cuenta de Rodolfo el reno'.
+	
+	self assert: expectedReportText equals: report printReport.
+	! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 20:13:09'!
+test14PortfolioDetailedTreeReflextAccountTransactionsToo
+
+	| santaAccount rudolphAccount christmasPortfolio reindeerPortfolio report  expectedReportText |
+	
+	santaAccount _ ReceptiveAccount named: 'Cuenta de Santa Claus'.
+	rudolphAccount _ ReceptiveAccount named: 'Cuenta de Rodolfo el reno'.
+	reindeerPortfolio _ Portfolio named: 'Portfolio de renos' with: rudolphAccount.
+	christmasPortfolio _ Portfolio named: 'Portfolio de Navidad' with: santaAccount with: reindeerPortfolio.
+	report _ PortfolioTreePrinter for: christmasPortfolio.
+	santaAccount register: (Deposit for: 20 * peso).
+	
+	expectedReportText _ 'Portfolio de Navidad', self newLine,
+						self ident, 	'Cuenta de Santa Claus', self newLine,
+						self ident, self ident,		'Depósito por 20 pesos', self newLine,
+						self ident, 	'Portfolio de renos',self newLine, 
+						self ident, self ident, 'Cuenta de Rodolfo el reno'.
+	
+	self assert: expectedReportText equals: report printReportDetailed.
+	! !
+
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 20:38:53'!
+test15PortfolioTreePrinterOnlyCanBeBuildFromAPortfolio
+
+	| santaAccount report  |
+	
+	santaAccount _ ReceptiveAccount named: 'Cuenta de Santa Claus'.
+
+	
+	self should: [report _ PortfolioTreePrinter for: santaAccount] 
+	
+		raise: Error 
+		
+		withMessageText: 'Para generar el reporte, la cuenta debe ser un portfolio'.
+	! !
+
+
+!ReportTest methodsFor: 'print alignament' stamp: 'FL 12/13/2020 17:16:48'!
+ident
+
+	^Character tab asString.! !
+
+!ReportTest methodsFor: 'print alignament' stamp: 'FL 12/13/2020 15:39:35'!
+newLine
+
+	^Character lf asString.! !
 
 
 !classDefinition: #TransferenceTest category: 'ServiciosFinancieros-Ejercicio'!
@@ -451,180 +557,71 @@ test05TransferenceHasValueAsignated
 	self assert: transference value equals: 50 * peso.! !
 
 
-!classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
-Object subclass: #AccountTransaction
+!classDefinition: #Account category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Account
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!AccountTransaction methodsFor: 'value' stamp: 'FL 12/7/2020 02:51:42'!
-accountMovement 
+!Account methodsFor: 'testing' stamp: 'FL 12/13/2020 16:31:30'!
+balance
 
 	self subclassResponsibility ! !
 
-!AccountTransaction methodsFor: 'value' stamp: 'HernanWilkinson 9/12/2011 12:25'!
-value 
+!Account methodsFor: 'testing' stamp: 'FL 12/13/2020 16:31:47'!
+hasRegistered: aTransaction
 
 	self subclassResponsibility ! !
 
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'AccountTransaction class' category: 'ServiciosFinancieros-Ejercicio'!
-AccountTransaction class
-	instanceVariableNames: ''!
+!Account methodsFor: 'composition - private' stamp: 'FL 12/13/2020 16:32:10'!
+addedTo: aPortfolio
 
-!AccountTransaction class methodsFor: 'instance creation' stamp: 'NR 10/21/2019 18:54:27'!
-register: aValue on: account
+	self subclassResponsibility ! !
 
-	| transaction |
-	
-	transaction := self for: aValue.
-	account register: transaction.
-		
-	^ transaction! !
+!Account methodsFor: 'composition - private' stamp: 'FL 12/13/2020 16:31:11'!
+isComposedBy: anAccount
 
-
-!classDefinition: #Deposit category: 'ServiciosFinancieros-Ejercicio'!
-AccountTransaction subclass: #Deposit
-	instanceVariableNames: 'value'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!Deposit methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:45'!
-initializeFor: aValue
-
-	value := aValue ! !
+	self subclassResponsibility.! !
 
 
-!Deposit methodsFor: 'value' stamp: 'FL 12/7/2020 02:50:49'!
-accountMovement
+!Account methodsFor: 'accessing' stamp: 'FL 12/13/2020 22:56:35'!
+inPreOrderTraversalDo: aBlock
 
-	^ value! !
+	self subclassResponsibility.! !
 
-!Deposit methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:38'!
-value
+!Account methodsFor: 'accessing' stamp: 'FL 12/13/2020 18:20:20'!
+name
 
-	^ value! !
+	^self subclassResponsibility.! !
 
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+!Account methodsFor: 'accessing' stamp: 'FL 12/14/2020 01:19:00'!
+withAllMyTransactionsDo: aBlock
 
-!classDefinition: 'Deposit class' category: 'ServiciosFinancieros-Ejercicio'!
-Deposit class
-	instanceVariableNames: ''!
-
-!Deposit class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 18:38'!
-for: aValue
-
-	^ self new initializeFor: aValue ! !
-
-
-!classDefinition: #Withdraw category: 'ServiciosFinancieros-Ejercicio'!
-AccountTransaction subclass: #Withdraw
-	instanceVariableNames: 'value'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!Withdraw methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:46'!
-initializeFor: aValue
-
-	value := aValue ! !
-
-
-!Withdraw methodsFor: 'value' stamp: 'FL 12/7/2020 02:51:06'!
-accountMovement
-
-	^ -1 * value! !
-
-!Withdraw methodsFor: 'value' stamp: 'FL 12/7/2020 02:47:01'!
-value
-
-	^ value! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Withdraw class' category: 'ServiciosFinancieros-Ejercicio'!
-Withdraw class
-	instanceVariableNames: ''!
-
-!Withdraw class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 18:33'!
-for: aValue
-
-	^ self new initializeFor: aValue ! !
-
-
-!classDefinition: #OriginTransferPart category: 'ServiciosFinancieros-Ejercicio'!
-Object subclass: #OriginTransferPart
-	instanceVariableNames: 'originTransference'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!OriginTransferPart methodsFor: 'initialization' stamp: 'FL 12/8/2020 15:29:50'!
-initializeFrom: aOriginTransference 
-
-	originTransference := aOriginTransference.! !
-
-
-!OriginTransferPart methodsFor: 'accessing' stamp: 'FL 12/8/2020 15:28:32'!
-accountMovement
-
-	^-1 * originTransference value.! !
-
-!OriginTransferPart methodsFor: 'accessing' stamp: 'SC 12/9/2020 20:02:46'!
-counterpart
-
-	^originTransference destinationPart.! !
-
-!OriginTransferPart methodsFor: 'accessing' stamp: 'FL 12/8/2020 15:32:00'!
-value
-
-	^originTransference value.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'OriginTransferPart class' category: 'ServiciosFinancieros-Ejercicio'!
-OriginTransferPart class
-	instanceVariableNames: ''!
-
-!OriginTransferPart class methodsFor: 'instance creation' stamp: 'FL 12/8/2020 15:31:11'!
-from: aOriginTransference 
-
-	^self new initializeFrom: aOriginTransference ! !
-
-
-!classDefinition: #DestinationTransferPart category: 'ServiciosFinancieros-Ejercicio'!
-OriginTransferPart subclass: #DestinationTransferPart
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!DestinationTransferPart methodsFor: 'accessing' stamp: 'FL 12/8/2020 15:32:52'!
-accountMovement
-
-	^self value.! !
-
-!DestinationTransferPart methodsFor: 'accessing' stamp: 'SC 12/9/2020 20:02:20'!
-counterpart
-
-	^originTransference originPart.! !
+	self subclassResponsibility.! !
 
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
-Object subclass: #Portfolio
-	instanceVariableNames: 'accounts parents'
+Account subclass: #Portfolio
+	instanceVariableNames: 'accounts parents name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Portfolio methodsFor: 'initialization' stamp: 'HAW 5/25/2019 12:03:18'!
+!Portfolio methodsFor: 'initialization' stamp: 'FL 12/14/2020 20:10:21'!
 initialize
 
 	accounts := OrderedCollection new.
-	parents := OrderedCollection new.! !
+	parents := OrderedCollection new.
+	name := 'aPortfolio'.! !
+
+!Portfolio methodsFor: 'initialization' stamp: 'FL 12/13/2020 11:01:00'!
+initializeNamedAs: anAccountName
+
+	accounts := OrderedCollection new.
+	parents := OrderedCollection new.
+	name := anAccountName.! !
 
 
 !Portfolio methodsFor: 'accounts management' stamp: 'HAW 5/25/2019 12:19:20'!
@@ -653,20 +650,39 @@ hasRegistered: aTransaction
 	^accounts anySatisfy: [:anAccount | anAccount hasRegistered: aTransaction].! !
 
 
-!Portfolio methodsFor: 'accessing' stamp: 'HAW 5/25/2019 11:49:06'!
+!Portfolio methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 11:49:06'!
 accountsSize
 	
 	^accounts size! !
 
-!Portfolio methodsFor: 'accessing' stamp: 'FL 12/8/2020 16:14:46'!
+!Portfolio methodsFor: 'main protocol' stamp: 'FL 12/8/2020 16:14:46'!
 balance
 	
 	^accounts sum: [ :anAccount | anAccount balance ] ifEmpty: [ 0 * peso ].! !
 
-!Portfolio methodsFor: 'accessing' stamp: 'FL 12/12/2020 13:06:02'!
+!Portfolio methodsFor: 'main protocol' stamp: 'FL 12/14/2020 01:58:07'!
+inPreOrderTraversalDo: aBlock
+
+	aBlock  value: self value: 0.
+	
+	accounts do: [:anAccount | 	anAccount inPreOrderTraversalDo: aBlock	 fromLevel: 1].! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'FL 12/14/2020 02:01:37'!
+inPreOrderTraversalDo: aBlock fromLevel: aLevelNumber
+
+	aBlock  value: self value: aLevelNumber +1.
+	
+	accounts do: [:anAccount | 	anAccount inPreOrderTraversalDo: aBlock fromLevel: aLevelNumber + 1	].! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'FL 12/13/2020 18:20:33'!
+name
+
+	^name! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'FL 12/14/2020 01:17:16'!
 withAllMyTransactionsDo: aBlock
- 
-	accounts do: [:anAccount | anAccount withAllMyTransactionsDo: aBlock].! !
+
+	accounts do: [:anAccount | anAccount withAllMyTransactionsDo: aBlock ].! !
 
 
 !Portfolio methodsFor: 'composition - private' stamp: 'HAW 5/25/2019 12:17:31'!
@@ -718,38 +734,62 @@ signalCanNotAddAccount
 Portfolio class
 	instanceVariableNames: ''!
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'HAW 5/25/2019 11:48:55'!
+!Portfolio class methodsFor: 'instance creation' stamp: 'FL 12/13/2020 11:01:00'!
+named: anAccountName with: anAccount
+	
+	^(self new initializeNamedAs: anAccountName)
+	add: anAccount;
+	yourself! !
+
+!Portfolio class methodsFor: 'instance creation' stamp: 'FL 12/13/2020 11:01:16'!
+named: anAccountName with: anAccount with: anotherAccount
+
+	^(self new initializeNamedAs: anAccountName)
+	add: anAccount;
+	add: anotherAccount;
+	yourself! !
+
+!Portfolio class methodsFor: 'instance creation' stamp: 'FL 12/13/2020 21:42:55'!
+with: anAccount
+
+	^self new
+		add: anAccount;
+		yourself! !
+
+!Portfolio class methodsFor: 'instance creation' stamp: 'FL 12/13/2020 21:43:05'!
+with: anAccount with: anotherAccount
+
+	^self new
+		add: anAccount;
+		add: anotherAccount;
+		yourself
+		! !
+
+
+!Portfolio class methodsFor: 'error messages' stamp: 'HAW 5/25/2019 11:48:55'!
 canNotAddAccountErrorMessage
 	
 	^'Can not add repeated account to a portfolio'! !
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'HAW 5/25/2019 11:18:21'!
-with: anAccount
-
-	^self new 
-		add: anAccount;
-		yourself! !
-
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'HAW 5/25/2019 11:23:59'!
-with: anAccount with: anotherAccount
-
-	^self new 
-		add: anAccount;
-		add: anotherAccount;
-		yourself! !
-
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
-Object subclass: #ReceptiveAccount
-	instanceVariableNames: 'transactions'
+Account subclass: #ReceptiveAccount
+	instanceVariableNames: 'transactions name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!ReceptiveAccount methodsFor: 'initialization' stamp: 'LL 9/20/2020 17:01:23'!
+!ReceptiveAccount methodsFor: 'initialization' stamp: 'FL 12/14/2020 20:10:12'!
 initialize
 
-	transactions := OrderedCollection new.! !
+	transactions := OrderedCollection new.
+	name := 'aReceptiveAccount'! !
+
+!ReceptiveAccount methodsFor: 'initialization' stamp: 'FL 12/13/2020 21:47:02'!
+initializeNamedAs: anAccountName
+
+	transactions := OrderedCollection new.
+	name := anAccountName.! !
 
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'FL 12/7/2020 02:51:20'!
@@ -763,11 +803,36 @@ hasRegistered: aTransaction
 	^transactions includes: aTransaction
 ! !
 
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'FL 12/14/2020 01:59:22'!
+inPreOrderTraversalDo: aBlock
+
+	aBlock value: self copy value: 0.! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'FL 12/14/2020 01:59:30'!
+inPreOrderTraversalDo: aBlock fromLevel: aLevelNumber
+
+	aBlock value: self copy value: aLevelNumber +1.! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'FL 12/13/2020 18:20:45'!
+name
+
+	^name! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'FL 12/13/2020 23:19:36'!
+onComposedAccountsDo: aBlock
+
+	aBlock value: self.! !
+
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 register: aTransaction
 
 	transactions add: aTransaction 
 ! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'FL 12/12/2020 12:55:31'!
+withAllMyTransactionsDo: aBlock
+ 
+	transactions do: [:aTransaction | aBlock value: aTransaction].! !
 
 
 !ReceptiveAccount methodsFor: 'composition - private' stamp: 'HAW 5/25/2019 12:03:32'!
@@ -780,69 +845,274 @@ isComposedBy: anAccount
 
 	^self = anAccount ! !
 
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!ReceptiveAccount methodsFor: 'accessing' stamp: 'FL 12/12/2020 12:55:31'!
-withAllMyTransactionsDo: aBlock
- 
-	transactions do: [:aTransaction | aBlock value: aTransaction].! !
+!classDefinition: 'ReceptiveAccount class' category: 'ServiciosFinancieros-Ejercicio'!
+ReceptiveAccount class
+	instanceVariableNames: ''!
+
+!ReceptiveAccount class methodsFor: 'instance creation' stamp: 'FL 12/13/2020 11:01:43'!
+named: anAccountName
+
+	^self new initializeNamedAs: anAccountName.! !
 
 
-!classDefinition: #Report category: 'ServiciosFinancieros-Ejercicio'!
-Object subclass: #Report
-	instanceVariableNames: 'account'
+!classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #AccountTransaction
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Report methodsFor: 'initialization' stamp: 'FL 12/12/2020 13:16:36'!
-initializeFor: anAccount
+!AccountTransaction methodsFor: 'value' stamp: 'FL 12/7/2020 02:51:42'!
+accountMovement 
 
-	account _ anAccount.! !
+	self subclassResponsibility ! !
+
+!AccountTransaction methodsFor: 'value' stamp: 'HernanWilkinson 9/12/2011 12:25'!
+value 
+
+	self subclassResponsibility ! !
 
 
-!Report methodsFor: 'printing' stamp: 'FL 12/12/2020 19:58:15'!
-accountSummary
+!AccountTransaction methodsFor: 'report - private' stamp: 'FL 12/13/2020 16:55:56'!
+handleMeFor: aReport
 
-	| text |
+	self subclassResponsibility ! !
+
+
+!classDefinition: #Deposit category: 'ServiciosFinancieros-Ejercicio'!
+AccountTransaction subclass: #Deposit
+	instanceVariableNames: 'value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Deposit methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:45'!
+initializeFor: aValue
+
+	value := aValue ! !
+
+
+!Deposit methodsFor: 'value' stamp: 'FL 12/7/2020 02:50:49'!
+accountMovement
+
+	^ value! !
+
+!Deposit methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:38'!
+value
+
+	^ value! !
+
+
+!Deposit methodsFor: 'report - private' stamp: 'FL 12/13/2020 16:55:56'!
+handleMeFor: aReport
+
+	^aReport asDeposit: self.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Deposit class' category: 'ServiciosFinancieros-Ejercicio'!
+Deposit class
+	instanceVariableNames: ''!
+
+!Deposit class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 18:38'!
+for: aValue
+
+	^ self new initializeFor: aValue ! !
+
+!Deposit class methodsFor: 'instance creation' stamp: 'FL 12/13/2020 15:51:58'!
+register: aValue on: account
+
+	| transaction |
 	
-	text _ ''.
-	
-	account withAllMyTransactionsDo:
-	
-		[:aTransaction | text _ text append: (self headerFor: aTransaction), aTransaction value asString, ' '].
+	transaction := self for: aValue.
+	account register: transaction.
 		
-	^text append: 'Balance = ', account balance asString.! !
+	^ transaction! !
+
+
+!classDefinition: #DestinationTransferPart category: 'ServiciosFinancieros-Ejercicio'!
+AccountTransaction subclass: #DestinationTransferPart
+	instanceVariableNames: 'originTransference value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!DestinationTransferPart methodsFor: 'accessing' stamp: 'FL 12/13/2020 16:01:32'!
+accountMovement
+
+	^originTransference value.! !
+
+!DestinationTransferPart methodsFor: 'accessing' stamp: 'SC 12/9/2020 20:02:20'!
+counterpart
+
+	^originTransference originPart.! !
+
+!DestinationTransferPart methodsFor: 'accessing' stamp: 'FL 12/13/2020 16:01:07'!
+value
+
+	^originTransference value! !
 
 
-!Report methodsFor: 'private' stamp: 'FL 12/12/2020 12:57:22'!
-headerFor: aTransaction
+!DestinationTransferPart methodsFor: 'report - private' stamp: 'FL 12/13/2020 16:55:56'!
+handleMeFor: aReport
 
-	{
-		Deposit -> 'Depósito por '.
-		Withdraw -> 'Extracción por '.
-		OriginTransferPart -> 'Salida por transferencia de '.
-		DestinationTransferPart -> 'Entrada por transferencia de '
+	^aReport asDestinationTrasferPart: self.! !
+
+
+!DestinationTransferPart methodsFor: 'initialization' stamp: 'FL 12/13/2020 15:54:05'!
+initializeFrom: aOriginTransference 
+
+	originTransference := aOriginTransference.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'DestinationTransferPart class' category: 'ServiciosFinancieros-Ejercicio'!
+DestinationTransferPart class
+	instanceVariableNames: ''!
+
+!DestinationTransferPart class methodsFor: 'instance creation' stamp: 'FL 12/13/2020 15:57:19'!
+from: aOriginTransference 
+
+	^self new initializeFrom: aOriginTransference ! !
+
+
+!classDefinition: #OriginTransferPart category: 'ServiciosFinancieros-Ejercicio'!
+AccountTransaction subclass: #OriginTransferPart
+	instanceVariableNames: 'originTransference'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!OriginTransferPart methodsFor: 'initialization' stamp: 'FL 12/8/2020 15:29:50'!
+initializeFrom: aOriginTransference 
+
+	originTransference := aOriginTransference.! !
+
+
+!OriginTransferPart methodsFor: 'accessing' stamp: 'FL 12/8/2020 15:28:32'!
+accountMovement
+
+	^-1 * originTransference value.! !
+
+!OriginTransferPart methodsFor: 'accessing' stamp: 'SC 12/9/2020 20:02:46'!
+counterpart
+
+	^originTransference destinationPart.! !
+
+!OriginTransferPart methodsFor: 'accessing' stamp: 'FL 12/8/2020 15:32:00'!
+value
+
+	^originTransference value.! !
+
+
+!OriginTransferPart methodsFor: 'report - private' stamp: 'FL 12/13/2020 16:55:56'!
+handleMeFor: aReport
+
+	^aReport asOriginTrasferPart: self.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'OriginTransferPart class' category: 'ServiciosFinancieros-Ejercicio'!
+OriginTransferPart class
+	instanceVariableNames: ''!
+
+!OriginTransferPart class methodsFor: 'instance creation' stamp: 'FL 12/8/2020 15:31:11'!
+from: aOriginTransference 
+
+	^self new initializeFrom: aOriginTransference ! !
+
+
+!classDefinition: #Withdraw category: 'ServiciosFinancieros-Ejercicio'!
+AccountTransaction subclass: #Withdraw
+	instanceVariableNames: 'value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Withdraw methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:46'!
+initializeFor: aValue
+
+	value := aValue ! !
+
+
+!Withdraw methodsFor: 'value' stamp: 'FL 12/7/2020 02:51:06'!
+accountMovement
+
+	^ -1 * value! !
+
+!Withdraw methodsFor: 'value' stamp: 'FL 12/7/2020 02:47:01'!
+value
+
+	^ value! !
+
+
+!Withdraw methodsFor: 'report - private' stamp: 'FL 12/13/2020 16:55:56'!
+handleMeFor: aReport
+
+	^aReport asWithdraw: self.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Withdraw class' category: 'ServiciosFinancieros-Ejercicio'!
+Withdraw class
+	instanceVariableNames: ''!
+
+!Withdraw class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 18:33'!
+for: aValue
+
+	^ self new initializeFor: aValue ! !
+
+!Withdraw class methodsFor: 'instance creation' stamp: 'FL 12/13/2020 15:52:03'!
+register: aValue on: account
+
+	| transaction |
+	
+	transaction := self for: aValue.
+	account register: transaction.
 		
-	} detect: [:aHeader | aTransaction class = aHeader key] ifFound: [:aHeader | ^aHeader value] 
-	
-	ifNone: [self error: 'There is no header for the class ',aTransaction class asString].! !
+	^ transaction! !
+
+
+!classDefinition: #Report category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Report
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Report methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:19:35'!
+asDeposit: aTrasaction
+
+	^self subclassResponsibility.! !
+
+!Report methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:20:19'!
+asDestinationTrasferPart: aTransaction
+
+	^self subclassResponsibility.! !
+
+!Report methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:20:42'!
+asOriginTrasferPart: aTransaction
+
+	^self subclassResponsibility.! !
+
+!Report methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:21:02'!
+asWithdraw: aTransaction
+
+	^self subclassResponsibility.! !
 
 
-!Report methodsFor: 'accessing' stamp: 'FL 12/12/2020 20:14:43'!
-transferenceNet
-	
-	| transferNet |
-	
-	transferNet _ 0 * peso.
-	
-	account withAllMyTransactionsDo: [:aTransaction | (aTransaction isKindOf: OriginTransferPart) ifTrue: [
-			
-			transferNet _ transferNet + aTransaction accountMovement.
-			
-		]
-	].
-	
-	^'Transference Net = ', transferNet asString.! !
+!Report methodsFor: 'print alignament' stamp: 'FL 12/13/2020 15:12:00'!
+newLine
+
+	^Character lf asString.! !
+
+
+!Report methodsFor: 'main primitives' stamp: 'FL 12/13/2020 15:27:12'!
+printReport
+
+	^self subclassResponsibility.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -850,7 +1120,215 @@ transferenceNet
 Report class
 	instanceVariableNames: ''!
 
-!Report class methodsFor: 'instance creation' stamp: 'FL 12/12/2020 12:40:09'!
+!Report class methodsFor: 'instance creation' stamp: 'FL 12/13/2020 15:28:00'!
+for: anAccount
+
+	^self subclassResponsibility.! !
+
+
+!classDefinition: #AccountSummary category: 'ServiciosFinancieros-Ejercicio'!
+Report subclass: #AccountSummary
+	instanceVariableNames: 'account'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!AccountSummary methodsFor: 'initialization' stamp: 'FL 12/12/2020 13:16:36'!
+initializeFor: anAccount
+
+	account _ anAccount.! !
+
+
+!AccountSummary methodsFor: 'printing' stamp: 'FL 12/14/2020 01:17:56'!
+printReport
+
+	| text |
+	
+	text _ ''.
+	
+	account withAllMyTransactionsDo: [				:aTrasaction | 	text _ text append: (aTrasaction handleMeFor: self), aTrasaction value asString, self newLine].
+
+	^text append: 'Balance = ', account balance asString.! !
+
+
+!AccountSummary methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:19:35'!
+asDeposit: aTrasaction
+
+	^'Depósito por '.! !
+
+!AccountSummary methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:20:19'!
+asDestinationTrasferPart: aTransaction
+
+	^'Entrada por transferencia de '.! !
+
+!AccountSummary methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:20:42'!
+asOriginTrasferPart: aTransaction
+
+	^'Salida por transferencia de '.! !
+
+!AccountSummary methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:21:02'!
+asWithdraw: aTransaction
+
+	^'Extracción por '.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'AccountSummary class' category: 'ServiciosFinancieros-Ejercicio'!
+AccountSummary class
+	instanceVariableNames: ''!
+
+!AccountSummary class methodsFor: 'instance creation' stamp: 'FL 12/12/2020 12:40:09'!
+for: anAccount 
+
+	^self new initializeFor: anAccount ! !
+
+
+!classDefinition: #PortfolioTreePrinter category: 'ServiciosFinancieros-Ejercicio'!
+Report subclass: #PortfolioTreePrinter
+	instanceVariableNames: 'portfolio text'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!PortfolioTreePrinter methodsFor: 'initialization' stamp: 'FL 12/14/2020 20:51:46'!
+initializeFor: aPortfolio
+
+	portfolio _ aPortfolio.
+	text _ ''.! !
+
+
+!PortfolioTreePrinter methodsFor: 'print alignament' stamp: 'FL 12/13/2020 17:21:46'!
+ident
+	
+	^Character tab asString.! !
+
+
+!PortfolioTreePrinter methodsFor: 'main primitives' stamp: 'FL 12/14/2020 20:51:46'!
+printReport
+
+	text _ ''.
+	
+	portfolio inPreOrderTraversalDo: [:anAccount :aLevelNumber | 		| identation | 		identation := ''.
+		
+		aLevelNumber -1 timesRepeat: [identation _ identation append: self ident,''].
+		
+		text = '' ifFalse: [text _ text,self newLine, identation , anAccount name] 			ifTrue: [text _ anAccount name]
+	
+	].
+	
+	^text.! !
+
+!PortfolioTreePrinter methodsFor: 'main primitives' stamp: 'FL 12/14/2020 20:51:57'!
+printReportDetailed
+
+	
+	text _ ''.
+	
+	portfolio inPreOrderTraversalDo: [:anAccount :aLevelNumber | 	| identation | 	identation := ''.
+		
+		aLevelNumber -1 timesRepeat: [identation _ identation append: self ident,''].
+		
+		text = '' ifFalse: [text _ text,self newLine, identation , anAccount name] 		ifTrue: [text _ anAccount name].
+		
+		(anAccount isKindOf: ReceptiveAccount) ifTrue: [		|nextLeveldentation |			nextLeveldentation _ identation append: self ident.
+			
+			anAccount withAllMyTransactionsDo:
+			
+				[:aTransaction | text _ text, self newLine,nextLeveldentation, (aTransaction handleMeFor: self), aTransaction value asString]
+				 
+		].
+	
+	].
+
+	^text! !
+
+
+!PortfolioTreePrinter methodsFor: 'transaction - private' stamp: 'FL 12/14/2020 02:20:37'!
+asDeposit: aTrasaction
+
+	^'Depósito por '.! !
+
+!PortfolioTreePrinter methodsFor: 'transaction - private' stamp: 'FL 12/14/2020 02:20:59'!
+asDestinationTrasferPart: aTransaction
+
+	^'Entrada por transferencia de '.! !
+
+!PortfolioTreePrinter methodsFor: 'transaction - private' stamp: 'FL 12/14/2020 02:21:10'!
+asOriginTrasferPart: aTransaction
+
+	^'Salida por transferencia de '.! !
+
+!PortfolioTreePrinter methodsFor: 'transaction - private' stamp: 'FL 12/14/2020 02:21:22'!
+asWithdraw: aTransaction
+
+	^'Extracción por '.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PortfolioTreePrinter class' category: 'ServiciosFinancieros-Ejercicio'!
+PortfolioTreePrinter class
+	instanceVariableNames: ''!
+
+!PortfolioTreePrinter class methodsFor: 'instance creation' stamp: 'FL 12/14/2020 20:24:38'!
+for: aPortfolio
+
+	(aPortfolio isKindOf: Portfolio ) ifFalse: [self error: 'Para generar el reporte, la cuenta debe ser un portfolio'].
+	
+	^self new initializeFor: aPortfolio.! !
+
+
+!classDefinition: #TransferNet category: 'ServiciosFinancieros-Ejercicio'!
+Report subclass: #TransferNet
+	instanceVariableNames: 'account'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!TransferNet methodsFor: 'printing' stamp: 'FL 12/14/2020 01:18:31'!
+printReport
+	
+	| transferNet |
+	
+	transferNet _ 0 * peso.
+	
+	account withAllMyTransactionsDo: [:aTransaction | 		transferNet _ transferNet + (aTransaction handleMeFor: self)	].
+	
+	^'Transference Net = ', transferNet asString.! !
+
+
+!TransferNet methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:21:57'!
+asDeposit: aTrasaction
+
+	^0* peso.! !
+
+!TransferNet methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:22:27'!
+asDestinationTrasferPart: aTransaction
+
+	^aTransaction accountMovement.! !
+
+!TransferNet methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:22:33'!
+asOriginTrasferPart: aTransaction
+
+	^aTransaction accountMovement.! !
+
+!TransferNet methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 16:54:54'!
+asWithdraw: aTransaction
+
+	^0* peso.! !
+
+
+!TransferNet methodsFor: 'initialization' stamp: 'FL 12/13/2020 15:29:48'!
+initializeFor: anAccount
+
+	account _ anAccount.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'TransferNet class' category: 'ServiciosFinancieros-Ejercicio'!
+TransferNet class
+	instanceVariableNames: ''!
+
+!TransferNet class methodsFor: 'instance creation' stamp: 'FL 12/13/2020 15:29:15'!
 for: anAccount 
 
 	^self new initializeFor: anAccount ! !
