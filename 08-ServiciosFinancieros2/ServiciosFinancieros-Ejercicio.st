@@ -243,7 +243,7 @@ TestCase subclass: #ReportTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 15:31:51'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 02:30:46'!
 test01AnAccoutWithNoTransactionHasNoMovementsSummary
 
 	| report account |
@@ -251,9 +251,9 @@ test01AnAccoutWithNoTransactionHasNoMovementsSummary
 	account _ ReceptiveAccount new.
 	report _ AccountSummary for: account.
 	
-	self	assert: 'Balance = 0 pesos'		equals: report printReport.! !
+	self	assert: 'Balance = 0 pesos', self newLine 		equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 16:34:51'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 02:31:05'!
 test02AccountTransactionsShouldChangeAccountSummary
 
 	| account report |
@@ -262,9 +262,9 @@ test02AccountTransactionsShouldChangeAccountSummary
 	account register: (Deposit for: 20 * peso).
 	report _ AccountSummary for: account.
 	
-	self deny: ('Balance = 0 pesos'		= report printReport).! !
+	self deny: ('Balance = 0 pesos', self newLine 		= report printReport).! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 16:35:18'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 02:31:23'!
 test03ValuesOfRecordedTransactionsAreDistinguished
 
 	| account report expectedReportText |
@@ -272,11 +272,11 @@ test03ValuesOfRecordedTransactionsAreDistinguished
 	account _ ReceptiveAccount new.
 	account register: (Deposit for: 80 * peso).
 	report _ AccountSummary for: account.
-	expectedReportText _ 'Depósito por 80 pesos',self newLine, 'Balance = 80 pesos'	.
+	expectedReportText _ 'Depósito por 80 pesos',self newLine, 'Balance = 80 pesos', self newLine	.
 	
 	self	assert: expectedReportText equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 19:58:15'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 02:31:30'!
 test04MultipleTransactionsCanBeRegister
 
 	| account report expectedReportText |
@@ -287,11 +287,11 @@ test04MultipleTransactionsCanBeRegister
 	report _ AccountSummary for: account.
 	expectedReportText _ 'Depósito por 20 pesos', self newLine, 
 					    'Depósito por 80 pesos', self newLine,
-				           'Balance = 100 pesos'.
+				           'Balance = 100 pesos', self newLine.
 	
 	self	assert: expectedReportText 	equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 19:58:56'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 02:31:34'!
 test05AccountSummaryReflectsAccountBalance
 
 	| account report expectedReportText |
@@ -303,11 +303,11 @@ test05AccountSummaryReflectsAccountBalance
 	report _ AccountSummary for: account.
 	expectedReportText	 _ 'Depósito por 20 pesos', self newLine,
 					    'Extracción por 20 pesos', self newLine,
-					    'Balance = 0 pesos'.
+					    'Balance = 0 pesos', self newLine.
 	
 	self	assert: expectedReportText 		equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 19:59:51'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 02:31:45'!
 test06TransferencesAreContemplatedInTheAccountSummary
 
 	| originAccount destinationAccount originReport destinationReport expectedReportTextInOrigin expectedReportTextInDestination |
@@ -319,13 +319,13 @@ test06TransferencesAreContemplatedInTheAccountSummary
 
 	originAccount register: (Deposit for: 20 * peso).
 	Transference from: originAccount to: destinationAccount for: 10 * peso.
-	expectedReportTextInOrigin _ 'Depósito por 20 pesos', self newLine, 'Salida por transferencia de 10 pesos', self newLine, 'Balance = 10 pesos'.
-	expectedReportTextInDestination _ 'Entrada por transferencia de 10 pesos', self newLine, 'Balance = 10 pesos'.
+	expectedReportTextInOrigin _ 'Depósito por 20 pesos', self newLine, 'Salida por transferencia de 10 pesos', self newLine, 'Balance = 10 pesos', self newLine.
+	expectedReportTextInDestination _ 'Entrada por transferencia de 10 pesos', self newLine, 'Balance = 10 pesos', self newLine.
 	
 	self	assert: expectedReportTextInOrigin 		equals: originReport printReport.
 	self	assert: expectedReportTextInDestination equals: destinationReport printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 15:47:38'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 02:31:50'!
 test07ASummaryCanBeBuildFromPortfolioTransactions
 
 	| account  portfolio report expectedReportText |
@@ -334,12 +334,12 @@ test07ASummaryCanBeBuildFromPortfolioTransactions
 	portfolio _ Portfolio with: account.
 	report _ AccountSummary for: portfolio.
 	account register: (Deposit for: 20 * peso).
-	expectedReportText _ 'Depósito por 20 pesos', self newLine, 'Balance = 20 pesos'.
+	expectedReportText _ 'Depósito por 20 pesos', self newLine, 'Balance = 20 pesos', self newLine.
 
 	
 	self	assert: 	expectedReportText 	equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 16:38:15'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 02:32:01'!
 test08TransferenceNetShouldBeZeroIfAccountHasNoTransferences
 
 	| account  report  |
@@ -350,9 +350,9 @@ test08TransferenceNetShouldBeZeroIfAccountHasNoTransferences
 	
 	account register: (Deposit for: 900 * peso).
 	
-	self	assert: 'Transference Net = 0 pesos'		equals: report printReport.! !
+	self	assert: 'Transference Net = 0 pesos', self newLine		equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 16:41:46'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 02:32:10'!
 test09AccountTransferencesAffectTransferNetReport
 
 	| originAccount destinationAccount  report  |
@@ -364,9 +364,9 @@ test09AccountTransferencesAffectTransferNetReport
 	originAccount register: (Deposit for: 900 * peso).
 	Transference from: originAccount to: destinationAccount for: 100* peso.
 	
-	self	assert: 'Transference Net = -100 pesos'		equals: report printReport.! !
+	self	assert: 'Transference Net = -100 pesos'	, self newLine 	equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 15:31:10'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 02:32:16'!
 test10TransferNetShouldBeAPartialBalanceForTransferences
 	| originAccount destinationAccount  report  |
 	
@@ -378,9 +378,9 @@ test10TransferNetShouldBeAPartialBalanceForTransferences
 	Transference from: originAccount to: destinationAccount for: 450* peso.
 	Transference from: destinationAccount to: originAccount for: 200* peso.
 	
-	self	assert: 'Transference Net = -250 pesos'		equals: report printReport.! !
+	self	assert: 'Transference Net = -250 pesos', self newLine		equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 20:05:04'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 02:41:14'!
 test11APortfolioWithAnAccountTreeShouldIdentOneTime
 	| account portfolio report  expectedReportText |
 	
@@ -390,11 +390,11 @@ test11APortfolioWithAnAccountTreeShouldIdentOneTime
 	report _ PortfolioTreePrinter for: portfolio.
 	
 	expectedReportText _ 'Portfolio de Navidad', self newLine,
-					     self ident, 'Cuenta de Santa Claus'.
+					    '    Cuenta de Santa Claus', self newLine.
 	
 	self	assert: expectedReportText 		equals: report printReport.! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/13/2020 22:06:14'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 02:42:35'!
 test12APortfolioTreeCanHaveManyAccounts
 
 	| santaAccount rudolphAccount christmasPortfolio report  expectedReportText |
@@ -405,13 +405,13 @@ test12APortfolioTreeCanHaveManyAccounts
 	report _ PortfolioTreePrinter for: christmasPortfolio.
 	
 	expectedReportText _ 'Portfolio de Navidad', self newLine,
-						self ident, 	'Cuenta de Santa Claus', self newLine, 
-						self ident, 'Cuenta de Rodolfo el reno'.
+					    '    Cuenta de Santa Claus', self newLine, 
+					    '    Cuenta de Rodolfo el reno', self newLine.
 	
 	self assert: expectedReportText equals: report printReport.
 	! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 02:18:30'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 03:27:03'!
 test13APortfolioTreeRecognizeMultipleLevelsIdentation
 
 	| santaAccount rudolphAccount christmasPortfolio reindeerPortfolio report  expectedReportText |
@@ -421,15 +421,16 @@ test13APortfolioTreeRecognizeMultipleLevelsIdentation
 	reindeerPortfolio _ Portfolio named: 'Portfolio de renos' with: rudolphAccount.
 	christmasPortfolio _ Portfolio named: 'Portfolio de Navidad' with: santaAccount with: reindeerPortfolio.
 	report _ PortfolioTreePrinter for: christmasPortfolio.
+	
 	expectedReportText _ 'Portfolio de Navidad', self newLine,
-						self ident, 	'Cuenta de Santa Claus', self newLine,
-						self ident, 	'Portfolio de renos',self newLine, 
-						self ident, self ident, 'Cuenta de Rodolfo el reno'.
+					    '    Cuenta de Santa Claus', self newLine,
+					    '    Portfolio de renos',self newLine, 
+					    '        Cuenta de Rodolfo el reno', self newLine.
 	
 	self assert: expectedReportText equals: report printReport.
 	! !
 
-!ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 20:13:09'!
+!ReportTest methodsFor: 'tests' stamp: 'FL 12/17/2020 03:17:18'!
 test14PortfolioDetailedTreeReflextAccountTransactionsToo
 
 	| santaAccount rudolphAccount christmasPortfolio reindeerPortfolio report  expectedReportText |
@@ -438,16 +439,20 @@ test14PortfolioDetailedTreeReflextAccountTransactionsToo
 	rudolphAccount _ ReceptiveAccount named: 'Cuenta de Rodolfo el reno'.
 	reindeerPortfolio _ Portfolio named: 'Portfolio de renos' with: rudolphAccount.
 	christmasPortfolio _ Portfolio named: 'Portfolio de Navidad' with: santaAccount with: reindeerPortfolio.
-	report _ PortfolioTreePrinter for: christmasPortfolio.
+	report _ PortfolioDetailedTreePrinter for: christmasPortfolio.
 	santaAccount register: (Deposit for: 20 * peso).
 	
 	expectedReportText _ 'Portfolio de Navidad', self newLine,
-						self ident, 	'Cuenta de Santa Claus', self newLine,
-						self ident, self ident,		'Depósito por 20 pesos', self newLine,
-						self ident, 	'Portfolio de renos',self newLine, 
-						self ident, self ident, 'Cuenta de Rodolfo el reno'.
+					    '    Cuenta de Santa Claus', self newLine,
+					    '        Depósito por 20 pesos', self newLine,
+					    '        Balance = 20 pesos', self newLine,
+					    '    Portfolio de renos',self newLine, 
+					    '        Cuenta de Rodolfo el reno', self newLine,
+					    '            Balance = 0 pesos', self newLine,
+					    '        Balance = 0 pesos', self newLine,
+					    '    Balance = 20 pesos', self newLine.
 	
-	self assert: expectedReportText equals: report printReportDetailed.
+	self assert: expectedReportText equals: report printReport.
 	! !
 
 !ReportTest methodsFor: 'tests' stamp: 'FL 12/14/2020 20:38:53'!
@@ -465,11 +470,6 @@ test15PortfolioTreePrinterOnlyCanBeBuildFromAPortfolio
 		withMessageText: 'Para generar el reporte, la cuenta debe ser un portfolio'.
 	! !
 
-
-!ReportTest methodsFor: 'print alignament' stamp: 'FL 12/13/2020 17:16:48'!
-ident
-
-	^Character tab asString.! !
 
 !ReportTest methodsFor: 'print alignament' stamp: 'FL 12/13/2020 15:39:35'!
 newLine
@@ -586,20 +586,16 @@ isComposedBy: anAccount
 	self subclassResponsibility.! !
 
 
-!Account methodsFor: 'accessing' stamp: 'FL 12/13/2020 22:56:35'!
-inPreOrderTraversalDo: aBlock
+!Account methodsFor: 'private - reporting' stamp: 'FL 12/17/2020 00:29:30'!
+howToTreatMeIn: aReport
 
-	self subclassResponsibility.! !
+	^self subclassResponsibility! !
+
 
 !Account methodsFor: 'accessing' stamp: 'FL 12/13/2020 18:20:20'!
 name
 
 	^self subclassResponsibility.! !
-
-!Account methodsFor: 'accessing' stamp: 'FL 12/14/2020 01:19:00'!
-withAllMyTransactionsDo: aBlock
-
-	self subclassResponsibility.! !
 
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
@@ -660,29 +656,10 @@ balance
 	
 	^accounts sum: [ :anAccount | anAccount balance ] ifEmpty: [ 0 * peso ].! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'FL 12/14/2020 01:58:07'!
-inPreOrderTraversalDo: aBlock
-
-	aBlock  value: self value: 0.
-	
-	accounts do: [:anAccount | 	anAccount inPreOrderTraversalDo: aBlock	 fromLevel: 1].! !
-
-!Portfolio methodsFor: 'main protocol' stamp: 'FL 12/14/2020 02:01:37'!
-inPreOrderTraversalDo: aBlock fromLevel: aLevelNumber
-
-	aBlock  value: self value: aLevelNumber +1.
-	
-	accounts do: [:anAccount | 	anAccount inPreOrderTraversalDo: aBlock fromLevel: aLevelNumber + 1	].! !
-
 !Portfolio methodsFor: 'main protocol' stamp: 'FL 12/13/2020 18:20:33'!
 name
 
 	^name! !
-
-!Portfolio methodsFor: 'main protocol' stamp: 'FL 12/14/2020 01:17:16'!
-withAllMyTransactionsDo: aBlock
-
-	accounts do: [:anAccount | anAccount withAllMyTransactionsDo: aBlock ].! !
 
 
 !Portfolio methodsFor: 'composition - private' stamp: 'HAW 5/25/2019 12:17:31'!
@@ -727,6 +704,17 @@ rootParents
 signalCanNotAddAccount
 	
 	self error: self class canNotAddAccountErrorMessage! !
+
+
+!Portfolio methodsFor: 'private - reporting' stamp: 'FL 12/17/2020 01:54:17'!
+howToTreatMeIn: aReport
+
+	^aReport handleAccountAsPortfolio: self! !
+
+!Portfolio methodsFor: 'private - reporting' stamp: 'FL 12/17/2020 01:56:07'!
+withAllMyAccountsDo: aBlock
+
+	accounts do: [:anAccount | aBlock value: anAccount].! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -792,6 +780,17 @@ initializeNamedAs: anAccountName
 	name := anAccountName.! !
 
 
+!ReceptiveAccount methodsFor: 'private - reporting' stamp: 'FL 12/17/2020 00:34:36'!
+howToTreatMeIn: aReport
+
+	^aReport handleAccountAsReceptiveAccount: self! !
+
+!ReceptiveAccount methodsFor: 'private - reporting' stamp: 'FL 12/12/2020 12:55:31'!
+withAllMyTransactionsDo: aBlock
+ 
+	transactions do: [:aTransaction | aBlock value: aTransaction].! !
+
+
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'FL 12/7/2020 02:51:20'!
 balance
 
@@ -803,36 +802,16 @@ hasRegistered: aTransaction
 	^transactions includes: aTransaction
 ! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'FL 12/14/2020 01:59:22'!
-inPreOrderTraversalDo: aBlock
-
-	aBlock value: self copy value: 0.! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'FL 12/14/2020 01:59:30'!
-inPreOrderTraversalDo: aBlock fromLevel: aLevelNumber
-
-	aBlock value: self copy value: aLevelNumber +1.! !
-
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'FL 12/13/2020 18:20:45'!
 name
 
 	^name! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'FL 12/13/2020 23:19:36'!
-onComposedAccountsDo: aBlock
-
-	aBlock value: self.! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 register: aTransaction
 
 	transactions add: aTransaction 
 ! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'FL 12/12/2020 12:55:31'!
-withAllMyTransactionsDo: aBlock
- 
-	transactions do: [:aTransaction | aBlock value: aTransaction].! !
 
 
 !ReceptiveAccount methodsFor: 'composition - private' stamp: 'HAW 5/25/2019 12:03:32'!
@@ -875,10 +854,10 @@ value
 	self subclassResponsibility ! !
 
 
-!AccountTransaction methodsFor: 'report - private' stamp: 'FL 12/13/2020 16:55:56'!
-handleMeFor: aReport
+!AccountTransaction methodsFor: 'private - reporting' stamp: 'FL 12/17/2020 00:29:43'!
+howToTreatMeIn: aReport
 
-	self subclassResponsibility ! !
+	^self subclassResponsibility ! !
 
 
 !classDefinition: #Deposit category: 'ServiciosFinancieros-Ejercicio'!
@@ -905,10 +884,10 @@ value
 	^ value! !
 
 
-!Deposit methodsFor: 'report - private' stamp: 'FL 12/13/2020 16:55:56'!
-handleMeFor: aReport
+!Deposit methodsFor: 'private - reporting' stamp: 'FL 12/17/2020 00:31:28'!
+howToTreatMeIn: aReport
 
-	^aReport asDeposit: self.! !
+	^aReport handleTransactionAsDeposit: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -955,16 +934,16 @@ value
 	^originTransference value! !
 
 
-!DestinationTransferPart methodsFor: 'report - private' stamp: 'FL 12/13/2020 16:55:56'!
-handleMeFor: aReport
-
-	^aReport asDestinationTrasferPart: self.! !
-
-
 !DestinationTransferPart methodsFor: 'initialization' stamp: 'FL 12/13/2020 15:54:05'!
 initializeFrom: aOriginTransference 
 
 	originTransference := aOriginTransference.! !
+
+
+!DestinationTransferPart methodsFor: 'private - reporting' stamp: 'FL 12/17/2020 01:49:52'!
+howToTreatMeIn: aReport
+
+	^aReport handleTransactionAsDestinationTransferPart: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1007,10 +986,10 @@ value
 	^originTransference value.! !
 
 
-!OriginTransferPart methodsFor: 'report - private' stamp: 'FL 12/13/2020 16:55:56'!
-handleMeFor: aReport
+!OriginTransferPart methodsFor: 'private - reporting' stamp: 'FL 12/17/2020 01:50:05'!
+howToTreatMeIn: aReport
 
-	^aReport asOriginTrasferPart: self.! !
+	^aReport handleTransactionAsOriginTransferPart: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1048,10 +1027,10 @@ value
 	^ value! !
 
 
-!Withdraw methodsFor: 'report - private' stamp: 'FL 12/13/2020 16:55:56'!
-handleMeFor: aReport
+!Withdraw methodsFor: 'private - reporting' stamp: 'FL 12/17/2020 00:31:47'!
+howToTreatMeIn: aReport
 
-	^aReport asWithdraw: self.! !
+	^aReport handleTransactionAsWithdraw: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1082,37 +1061,59 @@ Object subclass: #Report
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Report methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:19:35'!
-asDeposit: aTrasaction
-
-	^self subclassResponsibility.! !
-
-!Report methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:20:19'!
-asDestinationTrasferPart: aTransaction
-
-	^self subclassResponsibility.! !
-
-!Report methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:20:42'!
-asOriginTrasferPart: aTransaction
-
-	^self subclassResponsibility.! !
-
-!Report methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:21:02'!
-asWithdraw: aTransaction
-
-	^self subclassResponsibility.! !
-
-
-!Report methodsFor: 'print alignament' stamp: 'FL 12/13/2020 15:12:00'!
-newLine
-
-	^Character lf asString.! !
-
-
 !Report methodsFor: 'main primitives' stamp: 'FL 12/13/2020 15:27:12'!
 printReport
 
 	^self subclassResponsibility.! !
+
+
+!Report methodsFor: 'private - account' stamp: 'FL 12/17/2020 03:23:25'!
+handleAccountAsPortfolio: aPortfolio
+
+	^self subclassResponsibility.! !
+
+!Report methodsFor: 'private - account' stamp: 'FL 12/17/2020 03:23:33'!
+handleAccountAsReceptiveAccount: aReceptiveAccount
+
+	^self subclassResponsibility.! !
+
+
+!Report methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 03:23:41'!
+handleTransactionAsDeposit: aDeposit
+
+	^self subclassResponsibility.! !
+
+!Report methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 03:23:50'!
+handleTransactionAsDestinationTransferPart: aDestinationTransferPart
+
+	^self subclassResponsibility.! !
+
+!Report methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 03:23:58'!
+handleTransactionAsOriginTransferPart: aOriginTransferPart
+
+	^self subclassResponsibility.! !
+
+!Report methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 03:24:07'!
+handleTransactionAsWithdraw: aWithdraw
+
+	^self subclassResponsibility.! !
+
+
+!Report methodsFor: 'private - alignament' stamp: 'FL 12/17/2020 02:11:12'!
+indentationWithDepth: aDepthCardinal
+	
+	| indentation |
+	
+	indentation := ''.
+	
+	aDepthCardinal timesRepeat: [indentation := indentation,'    '.].
+	
+	^indentation.! !
+
+!Report methodsFor: 'private - alignament' stamp: 'FL 12/13/2020 15:12:00'!
+newLine
+
+	^Character lf asString.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1128,7 +1129,7 @@ for: anAccount
 
 !classDefinition: #AccountSummary category: 'ServiciosFinancieros-Ejercicio'!
 Report subclass: #AccountSummary
-	instanceVariableNames: 'account'
+	instanceVariableNames: 'account reportText'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -1139,37 +1140,49 @@ initializeFor: anAccount
 	account _ anAccount.! !
 
 
-!AccountSummary methodsFor: 'printing' stamp: 'FL 12/14/2020 01:17:56'!
+!AccountSummary methodsFor: 'printing' stamp: 'FL 12/17/2020 02:30:04'!
 printReport
 
-	| text |
+	reportText _ ''.
 	
-	text _ ''.
+	account howToTreatMeIn: self.
+
+	^reportText,'Balance = ', account balance asString, self newLine.! !
+
+
+!AccountSummary methodsFor: 'private - trnasaction' stamp: 'FL 12/17/2020 01:49:11'!
+handleTransactionAsDeposit: aDeposit
+
+	^'Depósito por ', aDeposit value asString, self newLine.! !
+
+!AccountSummary methodsFor: 'private - trnasaction' stamp: 'FL 12/17/2020 01:49:52'!
+handleTransactionAsDestinationTransferPart: aDestinationTransferPart
+
+	^'Entrada por transferencia de ', aDestinationTransferPart value asString, self newLine.! !
+
+!AccountSummary methodsFor: 'private - trnasaction' stamp: 'FL 12/17/2020 01:50:05'!
+handleTransactionAsOriginTransferPart: aTransaction
+
+	^'Salida por transferencia de ', aTransaction value asString, self newLine.! !
+
+!AccountSummary methodsFor: 'private - trnasaction' stamp: 'FL 12/17/2020 01:37:24'!
+handleTransactionAsWithdraw: aTransaction
+
+	^'Extracción por ', aTransaction value asString, self newLine.! !
+
+
+!AccountSummary methodsFor: 'private - account' stamp: 'FL 12/17/2020 01:43:29'!
+handleAccountAsPortfolio: aPortfolio
+
+	 aPortfolio withAllMyAccountsDo: [:anAccount | anAccount howToTreatMeIn: self].! !
+
+!AccountSummary methodsFor: 'private - account' stamp: 'FL 12/17/2020 01:51:02'!
+handleAccountAsReceptiveAccount: aReceptiveAccount
+
+	aReceptiveAccount withAllMyTransactionsDo: [:aTransaction | reportText _ reportText,(aTransaction howToTreatMeIn: self)].
+
 	
-	account withAllMyTransactionsDo: [				:aTrasaction | 	text _ text append: (aTrasaction handleMeFor: self), aTrasaction value asString, self newLine].
-
-	^text append: 'Balance = ', account balance asString.! !
-
-
-!AccountSummary methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:19:35'!
-asDeposit: aTrasaction
-
-	^'Depósito por '.! !
-
-!AccountSummary methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:20:19'!
-asDestinationTrasferPart: aTransaction
-
-	^'Entrada por transferencia de '.! !
-
-!AccountSummary methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:20:42'!
-asOriginTrasferPart: aTransaction
-
-	^'Salida por transferencia de '.! !
-
-!AccountSummary methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:21:02'!
-asWithdraw: aTransaction
-
-	^'Extracción por '.! !
+	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1185,40 +1198,29 @@ for: anAccount
 
 !classDefinition: #PortfolioTreePrinter category: 'ServiciosFinancieros-Ejercicio'!
 Report subclass: #PortfolioTreePrinter
-	instanceVariableNames: 'portfolio text'
+	instanceVariableNames: 'portfolio reportText currentIndentationLevel'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!PortfolioTreePrinter methodsFor: 'initialization' stamp: 'FL 12/14/2020 20:51:46'!
+!PortfolioTreePrinter methodsFor: 'initialization' stamp: 'FL 12/17/2020 02:40:03'!
 initializeFor: aPortfolio
 
 	portfolio _ aPortfolio.
-	text _ ''.! !
+	reportText _ ''.
+	currentIndentationLevel _ 0.! !
 
 
-!PortfolioTreePrinter methodsFor: 'print alignament' stamp: 'FL 12/13/2020 17:21:46'!
-ident
-	
-	^Character tab asString.! !
-
-
-!PortfolioTreePrinter methodsFor: 'main primitives' stamp: 'FL 12/14/2020 20:51:46'!
+!PortfolioTreePrinter methodsFor: 'main primitives' stamp: 'FL 12/17/2020 02:29:36'!
 printReport
 
-	text _ ''.
+	reportText _ ''.
 	
-	portfolio inPreOrderTraversalDo: [:anAccount :aLevelNumber | 		| identation | 		identation := ''.
-		
-		aLevelNumber -1 timesRepeat: [identation _ identation append: self ident,''].
-		
-		text = '' ifFalse: [text _ text,self newLine, identation , anAccount name] 			ifTrue: [text _ anAccount name]
+	portfolio howToTreatMeIn: self.
 	
-	].
-	
-	^text.! !
+	^reportText! !
 
-!PortfolioTreePrinter methodsFor: 'main primitives' stamp: 'FL 12/14/2020 20:51:57'!
+!PortfolioTreePrinter methodsFor: 'main primitives' stamp: 'FL 12/17/2020 00:17:49'!
 printReportDetailed
 
 	
@@ -1234,7 +1236,7 @@ printReportDetailed
 			
 			anAccount withAllMyTransactionsDo:
 			
-				[:aTransaction | text _ text, self newLine,nextLeveldentation, (aTransaction handleMeFor: self), aTransaction value asString]
+				[:aTransaction | text _ text, self newLine,nextLeveldentation, (aTransaction howToTreatMeIn: self), aTransaction value asString]
 				 
 		].
 	
@@ -1243,25 +1245,40 @@ printReportDetailed
 	^text! !
 
 
-!PortfolioTreePrinter methodsFor: 'transaction - private' stamp: 'FL 12/14/2020 02:20:37'!
-asDeposit: aTrasaction
+!PortfolioTreePrinter methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 02:27:56'!
+handleTransactionAsDeposit: aTrasaction! !
 
-	^'Depósito por '.! !
+!PortfolioTreePrinter methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 02:28:03'!
+handleTransactionAsDestinationTransferPart: aTransaction! !
 
-!PortfolioTreePrinter methodsFor: 'transaction - private' stamp: 'FL 12/14/2020 02:20:59'!
-asDestinationTrasferPart: aTransaction
+!PortfolioTreePrinter methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 02:28:08'!
+handleTransactionAsOriginTransferPart: aTransaction! !
 
-	^'Entrada por transferencia de '.! !
+!PortfolioTreePrinter methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 02:28:14'!
+handleTransactionAsWithdraw: aTransaction! !
 
-!PortfolioTreePrinter methodsFor: 'transaction - private' stamp: 'FL 12/14/2020 02:21:10'!
-asOriginTrasferPart: aTransaction
 
-	^'Salida por transferencia de '.! !
+!PortfolioTreePrinter methodsFor: 'private - account' stamp: 'FL 12/17/2020 02:58:04'!
+handleAccountAsPortfolio: aPortfolio
 
-!PortfolioTreePrinter methodsFor: 'transaction - private' stamp: 'FL 12/14/2020 02:21:22'!
-asWithdraw: aTransaction
+	self insertTextAligned: aPortfolio name.
+	
+	currentIndentationLevel _ currentIndentationLevel + 1.
+	
+	aPortfolio withAllMyAccountsDo: [:anAccount | 		anAccount howToTreatMeIn: self].
+	
+	currentIndentationLevel _ currentIndentationLevel - 1.! !
 
-	^'Extracción por '.! !
+!PortfolioTreePrinter methodsFor: 'private - account' stamp: 'FL 12/17/2020 02:58:53'!
+handleAccountAsReceptiveAccount: aReceptiveAccount
+
+	self insertTextAligned: aReceptiveAccount name.! !
+
+
+!PortfolioTreePrinter methodsFor: 'private - alignament' stamp: 'FL 12/17/2020 03:25:23'!
+insertTextAligned: textToInsert
+
+	reportText _ reportText, (self indentationWithDepth: currentIndentationLevel), textToInsert, self newLine.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1277,50 +1294,117 @@ for: aPortfolio
 	^self new initializeFor: aPortfolio.! !
 
 
-!classDefinition: #TransferNet category: 'ServiciosFinancieros-Ejercicio'!
-Report subclass: #TransferNet
-	instanceVariableNames: 'account'
+!classDefinition: #PortfolioDetailedTreePrinter category: 'ServiciosFinancieros-Ejercicio'!
+PortfolioTreePrinter subclass: #PortfolioDetailedTreePrinter
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!TransferNet methodsFor: 'printing' stamp: 'FL 12/14/2020 01:18:31'!
+!PortfolioDetailedTreePrinter methodsFor: 'private - account' stamp: 'FL 12/17/2020 03:11:13'!
+handleAccountAsPortfolio: aPortfolio
+
+	self insertTextAligned: aPortfolio name.
+	
+	currentIndentationLevel _ currentIndentationLevel + 1.
+	
+	aPortfolio withAllMyAccountsDo: [:anAccount | 		anAccount howToTreatMeIn: self].
+	
+	self insertTextAligned: 'Balance = ', aPortfolio balance asString.
+	
+	currentIndentationLevel _ currentIndentationLevel - 1.
+	! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'private - account' stamp: 'FL 12/17/2020 03:11:00'!
+handleAccountAsReceptiveAccount: aReceptiveAccount
+
+	self insertTextAligned: aReceptiveAccount name.
+	
+	currentIndentationLevel _ currentIndentationLevel + 1.
+	
+	aReceptiveAccount withAllMyTransactionsDo: [:anAccount | 		anAccount howToTreatMeIn: self].
+	
+	self insertTextAligned: 'Balance = ', aReceptiveAccount balance asString.
+	
+	currentIndentationLevel _ currentIndentationLevel - 1.
+	! !
+
+
+!PortfolioDetailedTreePrinter methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 03:05:09'!
+handleTransactionAsDeposit: aDeposit
+
+	self insertTextAligned: 'Depósito por ', aDeposit  value asString.! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 03:07:43'!
+handleTransactionAsDestinationTransferPart: aDestinationTransferPart
+
+	self insertTextAligned: 'Entrada por transferencia de ', aDestinationTransferPart  value asString.! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 03:07:57'!
+handleTransactionAsOriginTransferPart: originTransferPart
+
+	self insertTextAligned: 'Salida por transferencia de ',  originTransferPart value asString! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 03:08:30'!
+handleTransactionAsWithdraw: withdraw
+
+	self insertTextAligned: 'Extracción por ',  withdraw value asString.! !
+
+
+!classDefinition: #TransferNet category: 'ServiciosFinancieros-Ejercicio'!
+Report subclass: #TransferNet
+	instanceVariableNames: 'account transferBalance'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!TransferNet methodsFor: 'printing' stamp: 'FL 12/17/2020 02:30:15'!
 printReport
 	
-	| transferNet |
+	transferBalance _ 0 * peso.
 	
-	transferNet _ 0 * peso.
+	account howToTreatMeIn: self.
 	
-	account withAllMyTransactionsDo: [:aTransaction | 		transferNet _ transferNet + (aTransaction handleMeFor: self)	].
-	
-	^'Transference Net = ', transferNet asString.! !
-
-
-!TransferNet methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:21:57'!
-asDeposit: aTrasaction
-
-	^0* peso.! !
-
-!TransferNet methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:22:27'!
-asDestinationTrasferPart: aTransaction
-
-	^aTransaction accountMovement.! !
-
-!TransferNet methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 15:22:33'!
-asOriginTrasferPart: aTransaction
-
-	^aTransaction accountMovement.! !
-
-!TransferNet methodsFor: 'transaction - private' stamp: 'FL 12/13/2020 16:54:54'!
-asWithdraw: aTransaction
-
-	^0* peso.! !
+	^'Transference Net = ', transferBalance asString, self newLine.! !
 
 
 !TransferNet methodsFor: 'initialization' stamp: 'FL 12/13/2020 15:29:48'!
 initializeFor: anAccount
 
 	account _ anAccount.! !
+
+
+!TransferNet methodsFor: 'private - account' stamp: 'FL 12/17/2020 01:57:13'!
+handleAccountAsPortfolio: aPortfolio
+
+	 aPortfolio withAllMyAccountsDo: [:anAccount | anAccount howToTreatMeIn: self].! !
+
+!TransferNet methodsFor: 'private - account' stamp: 'FL 12/17/2020 02:02:14'!
+handleAccountAsReceptiveAccount: aReceptiveAccount
+
+	aReceptiveAccount withAllMyTransactionsDo: [:aTransaction | transferBalance _ transferBalance + (aTransaction howToTreatMeIn: self)].
+! !
+
+
+!TransferNet methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 03:25:51'!
+handleTransactionAsDeposit: aDeposit
+
+	^0* peso.! !
+
+!TransferNet methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 03:26:04'!
+handleTransactionAsDestinationTransferPart: aDestinationTransferPart
+
+	^aDestinationTransferPart accountMovement.! !
+
+!TransferNet methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 03:26:18'!
+handleTransactionAsOriginTransferPart: aOriginTransferPart
+
+	^aOriginTransferPart accountMovement.! !
+
+!TransferNet methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 03:26:28'!
+handleTransactionAsWithdraw: aWithdraw
+
+	^0* peso.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
