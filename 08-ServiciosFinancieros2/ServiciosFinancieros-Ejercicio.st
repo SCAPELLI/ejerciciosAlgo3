@@ -1150,22 +1150,22 @@ printReport
 	^reportText,'Balance = ', account balance asString, self newLine.! !
 
 
-!AccountSummary methodsFor: 'private - trnasaction' stamp: 'FL 12/17/2020 01:49:11'!
+!AccountSummary methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 01:49:11'!
 handleTransactionAsDeposit: aDeposit
 
 	^'Depósito por ', aDeposit value asString, self newLine.! !
 
-!AccountSummary methodsFor: 'private - trnasaction' stamp: 'FL 12/17/2020 01:49:52'!
+!AccountSummary methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 01:49:52'!
 handleTransactionAsDestinationTransferPart: aDestinationTransferPart
 
 	^'Entrada por transferencia de ', aDestinationTransferPart value asString, self newLine.! !
 
-!AccountSummary methodsFor: 'private - trnasaction' stamp: 'FL 12/17/2020 01:50:05'!
+!AccountSummary methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 01:50:05'!
 handleTransactionAsOriginTransferPart: aTransaction
 
 	^'Salida por transferencia de ', aTransaction value asString, self newLine.! !
 
-!AccountSummary methodsFor: 'private - trnasaction' stamp: 'FL 12/17/2020 01:37:24'!
+!AccountSummary methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 01:37:24'!
 handleTransactionAsWithdraw: aTransaction
 
 	^'Extracción por ', aTransaction value asString, self newLine.! !
@@ -1211,7 +1211,7 @@ initializeFor: aPortfolio
 	currentIndentationLevel _ 0.! !
 
 
-!PortfolioTreePrinter methodsFor: 'main primitives' stamp: 'FL 12/17/2020 02:29:36'!
+!PortfolioTreePrinter methodsFor: 'printing' stamp: 'FL 12/17/2020 02:29:36'!
 printReport
 
 	reportText _ ''.
@@ -1219,30 +1219,6 @@ printReport
 	portfolio howToTreatMeIn: self.
 	
 	^reportText! !
-
-!PortfolioTreePrinter methodsFor: 'main primitives' stamp: 'FL 12/17/2020 00:17:49'!
-printReportDetailed
-
-	
-	text _ ''.
-	
-	portfolio inPreOrderTraversalDo: [:anAccount :aLevelNumber | 	| identation | 	identation := ''.
-		
-		aLevelNumber -1 timesRepeat: [identation _ identation append: self ident,''].
-		
-		text = '' ifFalse: [text _ text,self newLine, identation , anAccount name] 		ifTrue: [text _ anAccount name].
-		
-		(anAccount isKindOf: ReceptiveAccount) ifTrue: [		|nextLeveldentation |			nextLeveldentation _ identation append: self ident.
-			
-			anAccount withAllMyTransactionsDo:
-			
-				[:aTransaction | text _ text, self newLine,nextLeveldentation, (aTransaction howToTreatMeIn: self), aTransaction value asString]
-				 
-		].
-	
-	].
-
-	^text! !
 
 
 !PortfolioTreePrinter methodsFor: 'private - transaction' stamp: 'FL 12/17/2020 02:27:56'!
