@@ -108,50 +108,50 @@ test10ACartWithManyBooksCanBeRegisteredToGetPrice
 	
 	self assert: 40 * peso equals: cashier totalToPay.! !
 
-!CartTest methodsFor: 'tests' stamp: 'SC 2/18/2021 17:50:30'!
+!CartTest methodsFor: 'tests' stamp: 'FL 2/18/2021 18:33:33'!
 test11ACashierCanTakePaymentFromTheCreditCard
 
 	| cashier cart aValidDate |
 	
 	cart := self createCart.
-	cart add: self bookFromTheEditorial quantity: 2.
+	cart add: self bookFromTheEditorial.
 	cashier := Cashier register: cart withPriceList: self priceList.
 	
 	aValidDate := Date today next.
 	
-	cashier charge: 40* peso to: 'Juan Perez' fromCreditCard: '1234567890123456' withExpirationDate: aValidDate.
+	cashier charge: cashier totalToPay to: 'Juan Perez' fromCreditCard: '1234567890123456' withExpirationDate: aValidDate.
 	
 	self assert: (cashier lastChargeResultWas: MerchantProccesor successfulPaymentResult).
 	! !
 
-!CartTest methodsFor: 'tests' stamp: 'sc 2/18/2021 16:56:41'!
+!CartTest methodsFor: 'tests' stamp: 'FL 2/18/2021 18:33:00'!
 test12ACashierCantTakePaymentFromExpiredCreditCard
 
 	| cashier cart anInvalidDate|
 	
 	cart := self createCart.
-	cart add: self bookFromTheEditorial quantity: 2.
+	cart add: self bookFromTheEditorial.
 	cashier := Cashier register: cart withPriceList: self priceList.
 	
 	anInvalidDate := Date today previous.
-	cashier charge: 40* peso to: 'Juan Perez' fromCreditCard: '123456789123456' withExpirationDate: anInvalidDate.
+	cashier charge: cashier totalToPay to: 'Juan Perez' fromCreditCard: '123456789123456' withExpirationDate: anInvalidDate.
 	
 	self assert: (cashier lastChargeResultWas: Cashier expiredCreditCardResult).
 	! !
 
-!CartTest methodsFor: 'tests' stamp: 'sc 2/18/2021 16:59:30'!
+!CartTest methodsFor: 'tests' stamp: 'FL 2/18/2021 18:33:11'!
 test13ACashierCantTakePaymentFromACardWithInvalidDigits
 
 	| cashier cart anInvalidCreditCard aValidDate|
 	
 	cart := self createCart.
-	cart add: self bookFromTheEditorial quantity: 2.
+	cart add: self bookFromTheEditorial.
 	cashier := Cashier register: cart withPriceList: self priceList.
 	
 	aValidDate := Date today next.
 	anInvalidCreditCard := '222'.
 	
-	cashier charge: 40* peso to: 'Juan Perez' fromCreditCard: anInvalidCreditCard withExpirationDate: aValidDate.
+	cashier charge: cashier totalToPay to: 'Juan Perez' fromCreditCard: anInvalidCreditCard withExpirationDate: aValidDate.
 	
 	self assert: (cashier lastChargeResultWas: Cashier invalidCreditCardResult).
 	! !
@@ -362,19 +362,20 @@ assertCartIsNotEmpty: aCart
 
 	^ aCart isEmpty ifTrue: [self error: self cannotRegisterAnEmptyCartErrorMessage ]! !
 
-!Cashier class methodsFor: 'instance creation' stamp: 'sc 2/18/2021 16:20:00'!
+
+!Cashier class methodsFor: 'payment messages' stamp: 'sc 2/18/2021 16:20:00'!
 expiredCreditCardResult
 	^'last payment was unsuccessful. The credit card is expired'! !
 
-!Cashier class methodsFor: 'instance creation' stamp: 'SC 2/18/2021 17:21:21'!
+!Cashier class methodsFor: 'payment messages' stamp: 'SC 2/18/2021 17:21:21'!
 insufficientFundsResult
 	^'last payment was unsuccessful. The funds where not enought'! !
 
-!Cashier class methodsFor: 'instance creation' stamp: 'sc 2/18/2021 16:40:07'!
+!Cashier class methodsFor: 'payment messages' stamp: 'sc 2/18/2021 16:40:07'!
 invalidCreditCardResult
 	^'last payment was unsuccessful. The credit card is invalid'! !
 
-!Cashier class methodsFor: 'instance creation' stamp: 'FL 2/18/2021 15:15:06'!
+!Cashier class methodsFor: 'payment messages' stamp: 'FL 2/18/2021 15:15:06'!
 register: aCart withPriceList: aPriceList
 
 	self assertCartIsNotEmpty: aCart.
@@ -408,11 +409,10 @@ initialize
 MerchantProccesor class
 	instanceVariableNames: ''!
 
-!MerchantProccesor class methodsFor: 'as yet unclassified' stamp: 'SC 2/18/2021 17:43:57'!
+!MerchantProccesor class methodsFor: 'payment message' stamp: 'SC 2/18/2021 17:43:57'!
 insufficientFundsResult
 	^'last payment was unsuccessful. The funds where not enought'! !
 
-
-!MerchantProccesor class methodsFor: 'errorMessage' stamp: 'SC 2/18/2021 17:49:03'!
+!MerchantProccesor class methodsFor: 'payment message' stamp: 'SC 2/18/2021 17:49:03'!
 successfulPaymentResult
 	^'last payment was successful'! !
