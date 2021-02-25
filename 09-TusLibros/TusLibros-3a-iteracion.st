@@ -284,8 +284,8 @@ test01CanNotCreateCartWithInvalidCredentials
 		].
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 09:44:04'!
-test02CanCreeateCartWithValidCredentials
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 14:56:39'!
+test02CanCreateCartWithValidCredentials
 
 	| purchasingAdvisor cartId |
 	cartId := #invalidCartId. 
@@ -389,7 +389,7 @@ test09CanListPurchasesWithValidCredentials
 	self assert: (purchasingAdvisor listPurchasesFor: 'testUserId' and: 'testUserId') includes: objectsFactory bookFromTheEditorial.
 ! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 13:55:40'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 14:55:45'!
 test10DifferentUsersHasDifferentPurchases
 
 	| purchasingAdvisor client1Id client2Id clientPassword cartId anotherCartId aCreditCard client1Purchases client2Purchases |
@@ -418,6 +418,24 @@ test10DifferentUsersHasDifferentPurchases
 	self assert: client2Purchases includes: objectsFactory bookFromTheEditorial.
 	self assert: 20  equals: (client2Purchases occurrencesOf: objectsFactory bookFromTheEditorial).
 	
+	! !
+
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 14:44:43'!
+test11IsNotPossibleToAddItemsToACartSold
+
+	| purchasingAdvisor cartId aCreditCard |
+
+	aCreditCard := objectsFactory aValidCreditCard.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	
+	cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'userPassword'.
+	
+	purchasingAdvisor add: 1 copiesOf: objectsFactory bookFromTheEditorial toCart: cartId.
+	purchasingAdvisor checkOut: cartId payingWith: aCreditCard through: merchantProcessor.
+	
+	self should: [purchasingAdvisor add: 1 copiesOf: objectsFactory bookFromTheEditorial toCart: cartId.] 
+		raise: Error 
+		withMessageText: PurchasingAdvisor isNotPossibleToAddItemsToACartSoldErrorMessage .
 	! !
 
 
@@ -722,6 +740,11 @@ Object subclass: #PurchasingAdvisor
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
+!PurchasingAdvisor methodsFor: 'assertions' stamp: 'FL 2/25/2021 14:43:57'!
+assertCartIsInProcess: cartIdToFind 
+	
+	inProcessCarts detect: [:aCartId | cartIdToFind = aCartId] ifNone: [self error: self class isNotPossibleToAddItemsToACartSoldErrorMessage]! !
+
 !PurchasingAdvisor methodsFor: 'assertions' stamp: 'FL 2/25/2021 12:22:41'!
 assertIsValidCartId: aCartId
 
@@ -747,10 +770,12 @@ initializeValidateClientsWith: userLogginSystem toAdviseOverProductsOn: aCatalog
 
 
 
-!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 12:22:41'!
+!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 14:16:07'!
 add: numberOfBooksToAdd copiesOf: aBook toCart: aCartId
 
 	self assertIsValidCartId: aCartId.
+	
+	self assertCartIsInProcess: aCartId.
 	
 	(allDeliveredCarts at: aCartId) add: aBook quantity: numberOfBooksToAdd.
 	
@@ -833,3 +858,8 @@ invalidCartIdErrorMessage
 invalidCredentialErrorMessage
 	
 	^'Invalid credentials. ClientId or password does not match'.! !
+
+!PurchasingAdvisor class methodsFor: 'error messages' stamp: 'FL 2/25/2021 14:14:31'!
+isNotPossibleToAddItemsToACartSoldErrorMessage
+	
+	^'Is not possible to add items to a cart sold'.! !
