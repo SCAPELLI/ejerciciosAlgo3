@@ -151,37 +151,35 @@ test03CannotCheckoutIfCardIsExpired
 			self assert: salesBook isEmpty.
 		]! !
 
-!CashierTest methodsFor: 'tests' stamp: 'FL 2/25/2021 02:00:05'!
+!CashierTest methodsFor: 'tests' stamp: 'LL 2/16/2021 23:04:34'!
 test04CheckoutDebitsCreditCardUsingMerchantProcessor
 
-	| cart ticket cashier debitedAmountFromCreditCard debitedCreditCard creditCard merchantProcessor |
+	| cart ticket cashier debitedAmountFromCreditCard debitedCreditCard creditCard |
 	cart := objectsFactory cartWithABook.
 	cashier := objectsFactory aCashier.
 	creditCard := objectsFactory aValidCreditCard.
- 	merchantProcessor := objectsFactory merchantProcessorForTest.
-	
-	merchantProcessor merchantProcessorBehaviour: [ :anAmountToDebit :aCreditCard | 
+		
+	self merchantProcessorBehaviour: [ :anAmountToDebit :aCreditCard | 
 		debitedAmountFromCreditCard := anAmountToDebit.
 		debitedCreditCard := aCreditCard.
 	].
 	
-	ticket := merchantProcessor cashier: cashier checkout: cart debitingOn: creditCard.
+	ticket := self cashier: cashier checkout: cart debitingOn: creditCard.
 	
 	self assert: debitedAmountFromCreditCard equals: ticket value.
 	self assert: debitedCreditCard equals: creditCard.! !
 
-!CashierTest methodsFor: 'tests' stamp: 'FL 2/25/2021 02:01:34'!
+!CashierTest methodsFor: 'tests' stamp: 'LL 2/16/2021 19:51:58'!
 test05CheckoutFailsIfMerchantProcessorCantProcessPayment
 
-	| cart cashier salesBook merchantProcessor |
+	| cart cashier salesBook |
 	cart := objectsFactory cartWithABook.
 	salesBook := objectsFactory anEmptySalesBook.
 	cashier := Cashier registeringSalesOn: salesBook.
-	merchantProcessor := objectsFactory merchantProcessorForTest.
 	
-	merchantProcessor merchantProcessorBehaviour: [ :anAmountToDebit :aCreditCard | Error new signal ].
+	self merchantProcessorBehaviour: [ :anAmountToDebit :aCreditCard | Error new signal ].
 	
-	self should: [ merchantProcessor cashier: cashier checkout: cart ]
+	self should: [ self cashier: cashier checkout: cart ]
 		raise: Error - MessageNotUnderstood 
 		withExceptionDo: [ :exceptionRaised | 
 			self assert: exceptionRaised messageText equals: Cashier couldNotProcessPaymentErrorMessage.
@@ -224,10 +222,10 @@ cashier: cashier checkout: cart debitingOn: aCreditCard
 
 	^cashier checkout: cart payingWith: aCreditCard through: self merchantProcessorForTest on: objectsFactory now.! !
 
-!CashierTest methodsFor: 'private' stamp: 'FL 2/25/2021 01:53:25'!
+!CashierTest methodsFor: 'private' stamp: 'LL 2/16/2021 18:29:57'!
 merchantProcessorForTest
 	
-	^objectsFactory merchantProcessorForTest.! !
+	^self! !
 
 
 !classDefinition: #CreditCardTest category: 'TusLibros'!
@@ -249,26 +247,36 @@ test01CreditCardOwnerNameCannotBeBlank
 
 !classDefinition: #PurchasingAdvisorTest category: 'TusLibros'!
 TestCase subclass: #PurchasingAdvisorTest
-	instanceVariableNames: 'objectsFactory merchantProcessorBehaviour'
+	instanceVariableNames: 'objectsFactory merchantProcessorBehaviour logonSystem logonBehaviour merchantProcessor'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/24/2021 21:24:55'!
+!PurchasingAdvisorTest methodsFor: 'private' stamp: 'FL 2/25/2021 10:06:09'!
+invalidAutenticationBehaviour
+
+	logonBehaviour := [:user :password | false]! !
+
+
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:18:29'!
 setUp
 
-	objectsFactory := PublisherTestObjectsFactory new.! !
+	objectsFactory := PublisherTestObjectsFactory new.
+	logonSystem := self.
+	logonBehaviour := [:user :password | true].
+	merchantProcessor := self.
+	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/24/2021 22:04:06'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 10:05:13'!
 test01CanNotCreateCartWithInvalidCredentials
 
-	| purchasingAdvisor clientId clientPassword cartId | 
-	clientId := 23920.
+	| purchasingAdvisor cartId | 
 	cartId := #invalidCartId.
-	clientPassword := 'abc123'.
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: objectsFactory aUserLogonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	self invalidAutenticationBehaviour.
 	
-	self should: [cartId := purchasingAdvisor createCartFor: clientId withPassword: clientPassword] 
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	
+	self should: [cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'testPassword']
 		raise: Error 
 		withExceptionDo: [ :anException |
 			self assert: anException messageText equals: PurchasingAdvisor invalidCredentialErrorMessage.
@@ -276,16 +284,14 @@ test01CanNotCreateCartWithInvalidCredentials
 		].
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/24/2021 22:14:09'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 09:44:04'!
 test02CanCreeateCartWithValidCredentials
 
-	| purchasingAdvisor clientId clientPassword cartId |
+	| purchasingAdvisor cartId |
 	cartId := #invalidCartId. 
-	clientId := objectsFactory aValidClientId.
-	clientPassword := 'abc123'.
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: objectsFactory aUserLogonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
 	
-	cartId := purchasingAdvisor createCartFor: clientId withPassword: clientPassword.
+	cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'testUserPassword'.
 	
 	self assert: (cartId isNotEqualTo: #invalidCartid).
 	
@@ -294,11 +300,11 @@ test02CanCreeateCartWithValidCredentials
 	
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 00:26:19'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 09:46:08'!
 test03CanNotListItemsInCartWithAnInvalidCartId
 
 	| purchasingAdvisor |
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: objectsFactory aUserLogonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
 	
 	self should: [purchasingAdvisor listCartWithId: 1]  raise: Error withMessageText: PurchasingAdvisor invalidCartIdErrorMessage.
 	
@@ -306,46 +312,41 @@ test03CanNotListItemsInCartWithAnInvalidCartId
 	
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 00:22:54'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:15:33'!
 test04CanAskForCartProvidingAValidCartId
 
-	| purchasingAdvisor clientId clientPassword cartId |
+	| purchasingAdvisor cartId |
 	cartId := #invalidCartId. 
-	clientId := objectsFactory aValidClientId.
-	clientPassword := 'abc123'.
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: objectsFactory aUserLogonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
 	
-	cartId := purchasingAdvisor createCartFor: clientId withPassword: clientPassword.
+	cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'testPassword'.
 	
 	
 	self assert: (purchasingAdvisor listCartWithId: cartId) isEmpty.! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 00:24:56'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:15:58'!
 test05CanListItemsInCartWithAValidCartId
 
-	| purchasingAdvisor clientId clientPassword cartId |
+	| purchasingAdvisor cartId |
 	cartId := #invalidCartId. 
-	clientId := objectsFactory aValidClientId.
-	clientPassword := 'abc123'.
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: objectsFactory aUserLogonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
 	
-	cartId := purchasingAdvisor createCartFor: clientId withPassword: clientPassword.
+	cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'testPassword'.
 	purchasingAdvisor add: 1 copiesOf: objectsFactory bookFromTheEditorial toCart: cartId.
 	
 	self assert: (purchasingAdvisor listCartWithId: cartId) includes: objectsFactory bookFromTheEditorial.
 ! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 02:57:24'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:19:32'!
 test06CanNotCheckOutWithAnInvalidCartId
 
-	| purchasingAdvisor cartId aCreditCard aMerchantProcessor |
+	| purchasingAdvisor cartId aCreditCard |
 	cartId := 1. 
 	aCreditCard := objectsFactory aValidCreditCard.
-	aMerchantProcessor := objectsFactory merchantProcessorForTest.
 	
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: objectsFactory aUserLogonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
 		
-	self should: [purchasingAdvisor checkOut: cartId payingWith: aCreditCard through: aMerchantProcessor] 
+	self should: [purchasingAdvisor checkOut: cartId payingWith: aCreditCard through: merchantProcessor ] 
 	
 	raise: Error 
 	
@@ -353,46 +354,76 @@ test06CanNotCheckOutWithAnInvalidCartId
 	
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 02:24:34'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 10:04:56'!
 test07CanNotListPurchasesForAnInexistentClientId
-	| purchasingAdvisor clientId clientPassword |
-	clientId := 234.
-	clientPassword := 'abc123'.
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: objectsFactory aUserLogonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	| purchasingAdvisor clientId |
+	self invalidAutenticationBehaviour.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
 	
 	
-	self should: [purchasingAdvisor listPurchasesFor: clientId and: clientPassword] raise: Error withMessageText: PurchasingAdvisor invalidCredentialErrorMessage.
+	self should: [purchasingAdvisor listPurchasesFor: 'testUser' and: 'testpassword'] raise: Error withMessageText: PurchasingAdvisor invalidCredentialErrorMessage.
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 02:26:39'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:14:43'!
 test08CanAskForPurchasesOfAExistentClientId
-	| purchasingAdvisor clientId clientPassword |
-	clientId := objectsFactory aValidClientId.
-	clientPassword := 'abc123'.
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: objectsFactory aUserLogonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	| purchasingAdvisor |
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
 	
 	
-	self assert: (purchasingAdvisor listPurchasesFor: clientId and: clientPassword) isEmpty.
+	self assert: (purchasingAdvisor listPurchasesFor: 'testUserId' and: 'testPassword') isEmpty.
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 02:58:34'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:20:51'!
 test09CanListPurchasesWithValidCredentials
 
-	| purchasingAdvisor clientId clientPassword cartId aCreditCard aMerchantProcessor |
+	| purchasingAdvisor cartId aCreditCard |
+	cartId := #invalidCartId.
+	aCreditCard := objectsFactory aValidCreditCard.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	
+	
+	cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'testPassword'.
+	purchasingAdvisor add: 1 copiesOf: objectsFactory bookFromTheEditorial toCart: cartId.
+	purchasingAdvisor checkOut: cartId payingWith: aCreditCard through: merchantProcessor.
+	
+	self assert: (purchasingAdvisor listPurchasesFor: 'testUserId' and: 'testUserId') includes: objectsFactory bookFromTheEditorial.
+! !
+
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:21:29'!
+test10
+
+	| purchasingAdvisor aClientId anotherClientId clientPassword cartId anotherCartId aCreditCard |
 	cartId := #invalidCartId. 
-	clientId := objectsFactory aValidClientId.
+	aClientId := '1'.
+	anotherClientId := '2'.
 	clientPassword := 'abc123'.
 	aCreditCard := objectsFactory aValidCreditCard.
-	aMerchantProcessor := objectsFactory merchantProcessorForTest.
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: objectsFactory aUserLogonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
 	
+	cartId := purchasingAdvisor createCartFor: aClientId withPassword: clientPassword.
+	anotherCartId := purchasingAdvisor createCartFor: anotherClientId withPassword: clientPassword.
 	
-	cartId := purchasingAdvisor createCartFor: clientId withPassword: clientPassword.
 	purchasingAdvisor add: 1 copiesOf: objectsFactory bookFromTheEditorial toCart: cartId.
-	purchasingAdvisor checkOut: cartId payingWith: aCreditCard through: aMerchantProcessor.
+	purchasingAdvisor checkOut: cartId payingWith: aCreditCard through: merchantProcessor.
 	
-	self assert: (purchasingAdvisor listPurchasesFor: clientId and: clientPassword) includes: objectsFactory bookFromTheEditorial.
-! !
+	purchasingAdvisor add: 20 copiesOf: objectsFactory bookFromTheEditorial toCart: anotherCartId .
+	purchasingAdvisor checkOut: anotherCartId payingWith: aCreditCard through: merchantProcessor .
+	
+	self assert: (purchasingAdvisor listPurchasesFor: aClientId and: clientPassword) includes: objectsFactory bookFromTheEditorial.
+	"Falta verificar la cantidad de items de un libro para cada cliente para ver que a diferentes clientes les devuelve distintos listados de compras."
+	
+	
+	! !
+
+
+!PurchasingAdvisorTest methodsFor: 'simulated messages' stamp: 'FL 2/25/2021 11:07:11'!
+debit: anAmountToDebit from: aCreditCard! !
+
+!PurchasingAdvisorTest methodsFor: 'simulated messages' stamp: 'FL 2/25/2021 10:00:06'!
+user: anUserId password: aPassword
+
+	^logonBehaviour value: anUserId value: aPassword.
+	! !
 
 
 !classDefinition: #Cart category: 'TusLibros'!
@@ -629,16 +660,6 @@ aPurchasingAdvisor
 	purchasingAdvisor := PurchasingAdvisor new.
 	! !
 
-!PublisherTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'FL 2/25/2021 03:01:01'!
-aUserLogonSystem
-
-	^[:anId :aPassword | anId = self aValidClientId or: [anId = (self aValidClientId +1)]].! !
-
-!PublisherTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'FL 2/24/2021 19:44:33'!
-aValidClientId 
-
-	^39043! !
-
 !PublisherTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'LL 2/16/2021 19:45:08'!
 aValidCreditCard
 
@@ -683,11 +704,6 @@ cartWithABook
 	cart add: self bookFromTheEditorial.
 	^cart! !
 
-!PublisherTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'FL 2/25/2021 01:32:23'!
-merchantProcessorForTest
-
-	^SimulatedMerchantProcessor new.! !
-
 !PublisherTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'LL 2/16/2021 19:48:31'!
 now 
 
@@ -707,10 +723,10 @@ assertIsValidCartId: aCartId
 	(deliveredCarts size < aCartId or: [0 > aCartId ]) ifTrue: [self error: self class invalidCartIdErrorMessage]
 ! !
 
-!PurchasingAdvisor methodsFor: 'assertions' stamp: 'FL 2/24/2021 23:23:51'!
+!PurchasingAdvisor methodsFor: 'assertions' stamp: 'FL 2/25/2021 09:07:41'!
 assertIsValidCredentialsFor: aClientId and: aClientPassword
 
-	(logginSystem value: aClientId value: aClientPassword ) ifFalse: [self error: self class invalidCredentialErrorMessage]
+	(logginSystem user: aClientId password: aClientPassword ) ifFalse: [self error: self class invalidCredentialErrorMessage]
 ! !
 
 
@@ -795,39 +811,3 @@ invalidCartIdErrorMessage
 invalidCredentialErrorMessage
 	
 	^'Invalid credentials. ClientId or password does not match'.! !
-
-
-!classDefinition: #SimulatedMerchantProcessor category: 'TusLibros'!
-Object subclass: #SimulatedMerchantProcessor
-	instanceVariableNames: 'merchantProcessorBehaviour objectsFactory'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!SimulatedMerchantProcessor methodsFor: 'initialization' stamp: 'FL 2/25/2021 01:57:27'!
-initialize
-
-	merchantProcessorBehaviour := [ :anAmountToDebit :aCreditCard |  ].
-	objectsFactory := PublisherTestObjectsFactory new.! !
-
-
-!SimulatedMerchantProcessor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 01:33:43'!
-debit: anAmountToDebit from: aCreditCard
-
-	^merchantProcessorBehaviour value: anAmountToDebit value: aCreditCard! !
-
-
-!SimulatedMerchantProcessor methodsFor: 'private' stamp: 'FL 2/25/2021 02:02:02'!
-cashier: cashier checkout: cart
-
-	^self cashier: cashier checkout: cart debitingOn: objectsFactory aValidCreditCard! !
-
-!SimulatedMerchantProcessor methodsFor: 'private' stamp: 'FL 2/25/2021 02:00:30'!
-cashier: cashier checkout: cart debitingOn: aCreditCard
-
-	^cashier checkout: cart payingWith: aCreditCard through: self on: objectsFactory now.! !
-
-!SimulatedMerchantProcessor methodsFor: 'private' stamp: 'FL 2/25/2021 01:34:35'!
-merchantProcessorBehaviour: newBehaviour
-
-	merchantProcessorBehaviour := newBehaviour! !
