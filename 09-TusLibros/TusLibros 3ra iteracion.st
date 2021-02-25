@@ -247,7 +247,7 @@ test01CreditCardOwnerNameCannotBeBlank
 
 !classDefinition: #PurchasingAdvisorTest category: 'TusLibros'!
 TestCase subclass: #PurchasingAdvisorTest
-	instanceVariableNames: 'objectsFactory merchantProcessorBehaviour logonSystem logonBehaviour merchantProcessor'
+	instanceVariableNames: 'objectsFactory merchantProcessorBehaviour logonSystem logonBehaviour merchantProcessor clock'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -258,23 +258,24 @@ invalidAutenticationBehaviour
 	logonBehaviour := [:user :password | false]! !
 
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:18:29'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:04:51'!
 setUp
 
 	objectsFactory := PublisherTestObjectsFactory new.
 	logonSystem := self.
 	logonBehaviour := [:user :password | true].
 	merchantProcessor := self.
+	clock := objectsFactory aClock.
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 10:05:13'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:01:12'!
 test01CanNotCreateCartWithInvalidCredentials
 
 	| purchasingAdvisor cartId | 
 	cartId := #invalidCartId.
 	self invalidAutenticationBehaviour.
 	
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
 	
 	self should: [cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'testPassword']
 		raise: Error 
@@ -284,12 +285,12 @@ test01CanNotCreateCartWithInvalidCredentials
 		].
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 14:56:39'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:01:12'!
 test02CanCreateCartWithValidCredentials
 
 	| purchasingAdvisor cartId |
 	cartId := #invalidCartId. 
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
 	
 	cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'testUserPassword'.
 	
@@ -300,11 +301,11 @@ test02CanCreateCartWithValidCredentials
 	
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 09:46:08'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:01:12'!
 test03CanNotListItemsInCartWithAnInvalidCartId
 
 	| purchasingAdvisor |
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
 	
 	self should: [purchasingAdvisor listCartWithId: 1]  raise: Error withMessageText: PurchasingAdvisor invalidCartIdErrorMessage.
 	
@@ -312,24 +313,24 @@ test03CanNotListItemsInCartWithAnInvalidCartId
 	
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:15:33'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:01:12'!
 test04CanAskForCartProvidingAValidCartId
 
 	| purchasingAdvisor cartId |
 	cartId := #invalidCartId. 
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
 	
 	cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'testPassword'.
 	
 	
 	self assert: (purchasingAdvisor listCartWithId: cartId) isEmpty.! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:15:58'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:01:12'!
 test05CanListItemsInCartWithAValidCartId
 
 	| purchasingAdvisor cartId |
 	cartId := #invalidCartId. 
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
 	
 	cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'testPassword'.
 	purchasingAdvisor add: 1 copiesOf: objectsFactory bookFromTheEditorial toCart: cartId.
@@ -337,14 +338,14 @@ test05CanListItemsInCartWithAValidCartId
 	self assert: (purchasingAdvisor listCartWithId: cartId) includes: objectsFactory bookFromTheEditorial.
 ! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:19:32'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:01:12'!
 test06CanNotCheckOutWithAnInvalidCartId
 
 	| purchasingAdvisor cartId aCreditCard |
 	cartId := 1. 
 	aCreditCard := objectsFactory aValidCreditCard.
 	
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
 		
 	self should: [purchasingAdvisor checkOut: cartId payingWith: aCreditCard through: merchantProcessor ] 
 	
@@ -354,32 +355,32 @@ test06CanNotCheckOutWithAnInvalidCartId
 	
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 10:04:56'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:01:13'!
 test07CanNotListPurchasesForAnInexistentClientId
 	| purchasingAdvisor clientId |
 	self invalidAutenticationBehaviour.
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
 	
 	
 	self should: [purchasingAdvisor listPurchasesFor: 'testUser' and: 'testpassword'] raise: Error withMessageText: PurchasingAdvisor invalidCredentialErrorMessage.
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:14:43'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:01:12'!
 test08CanAskForPurchasesOfAExistentClientId
 	| purchasingAdvisor |
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
 	
 	
 	self assert: (purchasingAdvisor listPurchasesFor: 'testUserId' and: 'testPassword') isEmpty.
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:20:51'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:01:12'!
 test09CanListPurchasesWithValidCredentials
 
 	| purchasingAdvisor cartId aCreditCard |
 	cartId := #invalidCartId.
 	aCreditCard := objectsFactory aValidCreditCard.
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
 	
 	
 	cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'testPassword'.
@@ -389,7 +390,7 @@ test09CanListPurchasesWithValidCredentials
 	self assert: (purchasingAdvisor listPurchasesFor: 'testUserId' and: 'testUserId') includes: objectsFactory bookFromTheEditorial.
 ! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 14:55:45'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:01:12'!
 test10DifferentUsersHasDifferentPurchases
 
 	| purchasingAdvisor client1Id client2Id clientPassword cartId anotherCartId aCreditCard client1Purchases client2Purchases |
@@ -398,7 +399,7 @@ test10DifferentUsersHasDifferentPurchases
 	client2Id := '2'.
 	clientPassword := 'abc123'.
 	aCreditCard := objectsFactory aValidCreditCard.
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
 	
 	cartId := purchasingAdvisor createCartFor: client1Id withPassword: clientPassword.
 	anotherCartId := purchasingAdvisor createCartFor: client2Id withPassword: clientPassword.
@@ -420,13 +421,13 @@ test10DifferentUsersHasDifferentPurchases
 	
 	! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 14:44:43'!
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:01:12'!
 test11IsNotPossibleToAddItemsToACartSold
 
 	| purchasingAdvisor cartId aCreditCard |
 
 	aCreditCard := objectsFactory aValidCreditCard.
-	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
 	
 	cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'userPassword'.
 	
@@ -436,6 +437,56 @@ test11IsNotPossibleToAddItemsToACartSold
 	self should: [purchasingAdvisor add: 1 copiesOf: objectsFactory bookFromTheEditorial toCart: cartId.] 
 		raise: Error 
 		withMessageText: PurchasingAdvisor isNotPossibleToAddItemsToACartSoldErrorMessage .
+	! !
+
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:54:20'!
+test12CannotAddItemsToAnExpiredCart
+
+	| purchasingAdvisor cartId |
+
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
+	
+	cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'userPassword'.
+	
+	clock alterate: 30 * minute.
+	
+	self should: [purchasingAdvisor add: 1 copiesOf: objectsFactory bookFromTheEditorial toCart: cartId.] 
+		raise: Error 
+		withMessageText: PurchasingAdvisor isNotPossibleToModifyAnExpiredCartErrorMessage .
+	! !
+
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:54:46'!
+test13AnOperationOverACartUpdateTheExpirationTime
+
+	| purchasingAdvisor cartId |
+
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
+	
+	cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'userPassword'.
+	clock alterate: 29 * minute.
+	purchasingAdvisor add: 1 copiesOf: objectsFactory bookFromTheEditorial toCart: cartId.
+	clock alterate: 10 * minute.
+	purchasingAdvisor add: 1 copiesOf: objectsFactory bookFromTheEditorial toCart: cartId.
+	
+	self assert: 2 equals: ((purchasingAdvisor listCartWithId: cartId) occurrencesOf: objectsFactory bookFromTheEditorial).! !
+
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'sc 2/25/2021 18:55:28'!
+test14AnExpiredCartCannotBeCheckouted
+
+	| purchasingAdvisor cartId |
+
+	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog withClock: clock.
+	
+	cartId := purchasingAdvisor createCartFor: 'testUserId' withPassword: 'userPassword'.
+	purchasingAdvisor add: 1 copiesOf: objectsFactory bookFromTheEditorial toCart: cartId.
+	
+	clock alterate: 30 * minute.
+	
+	self should: [purchasingAdvisor checkOut: cartId payingWith: objectsFactory aValidCreditCard through: merchantProcessor.] 
+		raise: Error 
+		withExceptionDo: [:anException |
+			self assert: PurchasingAdvisor isNotPossibleToModifyAnExpiredCartErrorMessage equals: anException messageText.
+			self assert: (purchasingAdvisor listPurchasesFor: 'testUserId' and: 'userPassword') isEmpty].
 	! !
 
 
@@ -617,6 +668,36 @@ registeringSalesOn: aSalesBook
 	^ self new initializeWithSalesBook: aSalesBook.! !
 
 
+!classDefinition: #Clock category: 'TusLibros'!
+Object subclass: #Clock
+	instanceVariableNames: 'gregorianDateTime'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!Clock methodsFor: 'as yet unclassified' stamp: 'sc 2/25/2021 18:09:11'!
+alterate: aTime
+	gregorianDateTime := gregorianDateTime next: aTime! !
+
+!Clock methodsFor: 'as yet unclassified' stamp: 'sc 2/25/2021 18:08:07'!
+initializeSync: aDateTime
+	gregorianDateTime := aDateTime.! !
+
+!Clock methodsFor: 'as yet unclassified' stamp: 'sc 2/25/2021 18:08:44'!
+now
+	^gregorianDateTime copy.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Clock class' category: 'TusLibros'!
+Clock class
+	instanceVariableNames: ''!
+
+!Clock class methodsFor: 'as yet unclassified' stamp: 'sc 2/25/2021 18:07:43'!
+sync: aDateTime
+	^Clock new initializeSync: aDateTime! !
+
+
 !classDefinition: #CreditCard category: 'TusLibros'!
 Object subclass: #CreditCard
 	instanceVariableNames: 'creditCardNumber owner expirationDate'
@@ -675,6 +756,11 @@ aCashier
 aCatalog
 
 	^ Dictionary newFromPairs: {self bookFromTheEditorial. self bookFromTheEditorialPrice}! !
+
+!PublisherTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'sc 2/25/2021 18:06:39'!
+aClock
+
+	^Clock sync: GregorianDateTime now.! !
 
 !PublisherTestObjectsFactory methodsFor: 'as yet unclassified' stamp: 'FL 2/24/2021 20:08:24'!
 aPurchasingAdvisor
@@ -735,10 +821,17 @@ now
 
 !classDefinition: #PurchasingAdvisor category: 'TusLibros'!
 Object subclass: #PurchasingAdvisor
-	instanceVariableNames: 'logginSystem catalog allDeliveredCarts purchasesMadeByClientId clientIdFromCartId inProcessCarts'
+	instanceVariableNames: 'logginSystem catalog allDeliveredCarts purchasesMadeByClientId clientIdFromCartId inProcessCarts clock salesBook timeFromCartId'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
+
+!PurchasingAdvisor methodsFor: 'assertions' stamp: 'sc 2/25/2021 18:42:11'!
+asserCartIsNotExpired: aCartId
+	
+	(((timeFromCartId at: aCartId) <= clock now) and: [ clock now < ((timeFromCartId at: aCartId) next: 30 * minute) ] ) 
+	
+		ifFalse: [self error: self class isNotPossibleToModifyAnExpiredCartErrorMessage].! !
 
 !PurchasingAdvisor methodsFor: 'assertions' stamp: 'FL 2/25/2021 14:43:57'!
 assertCartIsInProcess: cartIdToFind 
@@ -758,37 +851,45 @@ assertIsValidCredentialsFor: aClientId and: aClientPassword
 ! !
 
 
-!PurchasingAdvisor methodsFor: 'initialization' stamp: 'FL 2/25/2021 12:46:13'!
-initializeValidateClientsWith: userLogginSystem toAdviseOverProductsOn: aCatalog  
+!PurchasingAdvisor methodsFor: 'initialization' stamp: 'sc 2/25/2021 18:17:25'!
+initializeValidateClientsWith: userLogginSystem toAdviseOverProductsOn: aCatalog withClock: aClock
 	
 	logginSystem := userLogginSystem.
 	catalog := aCatalog.
 	allDeliveredCarts := OrderedCollection new.
 	inProcessCarts := Set new.
 	purchasesMadeByClientId := Dictionary new.
-	clientIdFromCartId := Dictionary new.! !
+	clientIdFromCartId := Dictionary new.
+	clock := aClock.
+	salesBook := OrderedCollection new.
+	timeFromCartId := Dictionary new.! !
 
 
-
-!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 14:16:07'!
+!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'sc 2/25/2021 18:46:11'!
 add: numberOfBooksToAdd copiesOf: aBook toCart: aCartId
 
 	self assertIsValidCartId: aCartId.
 	
 	self assertCartIsInProcess: aCartId.
 	
+	self asserCartIsNotExpired: aCartId.
+	
+	timeFromCartId at: aCartId put: clock now.
 	(allDeliveredCarts at: aCartId) add: aBook quantity: numberOfBooksToAdd.
 	
 	
 ! !
 
-!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 13:54:10'!
+!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'sc 2/25/2021 18:51:42'!
 checkOut: aCartId payingWith: aCreditCard through: aMerchantProcessor 
 	
 	| clientId |
 	self assertIsValidCartId: aCartId.	
+	self asserCartIsNotExpired: aCartId.
 	
-	(Cashier registeringSalesOn: OrderedCollection new) 
+	timeFromCartId at: aCartId put: clock now.
+	
+	(Cashier registeringSalesOn: salesBook) 
 		checkout: (allDeliveredCarts at: aCartId ) 
 		payingWith: aCreditCard 
 		through: aMerchantProcessor 
@@ -802,7 +903,7 @@ checkOut: aCartId payingWith: aCreditCard through: aMerchantProcessor
 	ifAbsent: [purchasesMadeByClientId at: clientId put: (self listCartWithId: aCartId)].
 	! !
 
-!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 12:47:54'!
+!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'sc 2/25/2021 18:20:48'!
 createCartFor: aClientId withPassword: aClientPassword
 	
 	| cart cartId |
@@ -814,15 +915,18 @@ createCartFor: aClientId withPassword: aClientPassword
 	cartId := allDeliveredCarts size.	
 	inProcessCarts add: cartId.
 	clientIdFromCartId at: cartId put: aClientId.
+	timeFromCartId at: cartId put: clock now.
 	
 	^cartId.! !
 
-!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 13:28:45'!
+!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'sc 2/25/2021 18:53:01'!
 listCartWithId: aCartId
 
 	| cart itemsInCart |	
 	
 	self assertIsValidCartId: aCartId.
+	
+	timeFromCartId at: aCartId put: clock now.
 	itemsInCart := Bag new.
 	cart := allDeliveredCarts at: aCartId.
 	catalog keys select: [:anItem | cart includes: anItem] thenDo: [:anItem | itemsInCart add: anItem withOccurrences: (cart quantityOf: anItem)].
@@ -843,10 +947,10 @@ listPurchasesFor: clientId and: clientPassword
 PurchasingAdvisor class
 	instanceVariableNames: ''!
 
-!PurchasingAdvisor class methodsFor: 'instance creation' stamp: 'FL 2/24/2021 21:17:54'!
-validateClientsWith: userLogonSystem toAdviseOverProductsOn: catalog  
+!PurchasingAdvisor class methodsFor: 'instance creation' stamp: 'sc 2/25/2021 18:01:28'!
+validateClientsWith: userLogonSystem toAdviseOverProductsOn: catalog withClock: clock   
 	
-	^self new initializeValidateClientsWith: userLogonSystem toAdviseOverProductsOn: catalog.! !
+	^self new initializeValidateClientsWith: userLogonSystem toAdviseOverProductsOn: catalog withClock: clock.! !
 
 
 !PurchasingAdvisor class methodsFor: 'error messages' stamp: 'FL 2/24/2021 22:24:27'!
@@ -863,3 +967,8 @@ invalidCredentialErrorMessage
 isNotPossibleToAddItemsToACartSoldErrorMessage
 	
 	^'Is not possible to add items to a cart sold'.! !
+
+!PurchasingAdvisor class methodsFor: 'error messages' stamp: 'sc 2/25/2021 18:10:31'!
+isNotPossibleToModifyAnExpiredCartErrorMessage
+	
+	^'Is not possible to modify an cart expired'.! !
