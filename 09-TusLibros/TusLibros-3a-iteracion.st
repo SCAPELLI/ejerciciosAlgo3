@@ -389,19 +389,19 @@ test09CanListPurchasesWithValidCredentials
 	self assert: (purchasingAdvisor listPurchasesFor: 'testUserId' and: 'testUserId') includes: objectsFactory bookFromTheEditorial.
 ! !
 
-!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 11:21:29'!
-test10
+!PurchasingAdvisorTest methodsFor: 'tests' stamp: 'FL 2/25/2021 13:55:40'!
+test10DifferentUsersHasDifferentPurchases
 
-	| purchasingAdvisor aClientId anotherClientId clientPassword cartId anotherCartId aCreditCard |
+	| purchasingAdvisor client1Id client2Id clientPassword cartId anotherCartId aCreditCard client1Purchases client2Purchases |
 	cartId := #invalidCartId. 
-	aClientId := '1'.
-	anotherClientId := '2'.
+	client1Id := '1'.
+	client2Id := '2'.
 	clientPassword := 'abc123'.
 	aCreditCard := objectsFactory aValidCreditCard.
 	purchasingAdvisor := PurchasingAdvisor validateClientsWith: logonSystem toAdviseOverProductsOn: objectsFactory aCatalog.
 	
-	cartId := purchasingAdvisor createCartFor: aClientId withPassword: clientPassword.
-	anotherCartId := purchasingAdvisor createCartFor: anotherClientId withPassword: clientPassword.
+	cartId := purchasingAdvisor createCartFor: client1Id withPassword: clientPassword.
+	anotherCartId := purchasingAdvisor createCartFor: client2Id withPassword: clientPassword.
 	
 	purchasingAdvisor add: 1 copiesOf: objectsFactory bookFromTheEditorial toCart: cartId.
 	purchasingAdvisor checkOut: cartId payingWith: aCreditCard through: merchantProcessor.
@@ -409,9 +409,14 @@ test10
 	purchasingAdvisor add: 20 copiesOf: objectsFactory bookFromTheEditorial toCart: anotherCartId .
 	purchasingAdvisor checkOut: anotherCartId payingWith: aCreditCard through: merchantProcessor .
 	
-	self assert: (purchasingAdvisor listPurchasesFor: aClientId and: clientPassword) includes: objectsFactory bookFromTheEditorial.
-	"Falta verificar la cantidad de items de un libro para cada cliente para ver que a diferentes clientes les devuelve distintos listados de compras."
+	client1Purchases := (purchasingAdvisor listPurchasesFor: client1Id and: clientPassword).
+	client2Purchases := (purchasingAdvisor listPurchasesFor: client2Id and: clientPassword).	
 	
+	self assert: client1Purchases includes: objectsFactory bookFromTheEditorial.
+	self assert: 1  equals: (client1Purchases occurrencesOf: objectsFactory bookFromTheEditorial).
+	
+	self assert: client2Purchases includes: objectsFactory bookFromTheEditorial.
+	self assert: 20  equals: (client2Purchases occurrencesOf: objectsFactory bookFromTheEditorial).
 	
 	! !
 
@@ -712,15 +717,15 @@ now
 
 !classDefinition: #PurchasingAdvisor category: 'TusLibros'!
 Object subclass: #PurchasingAdvisor
-	instanceVariableNames: 'logginSystem catalog deliveredCarts'
+	instanceVariableNames: 'logginSystem catalog allDeliveredCarts purchasesMadeByClientId clientIdFromCartId inProcessCarts'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!PurchasingAdvisor methodsFor: 'assertions' stamp: 'FL 2/25/2021 00:06:34'!
+!PurchasingAdvisor methodsFor: 'assertions' stamp: 'FL 2/25/2021 12:22:41'!
 assertIsValidCartId: aCartId
 
-	(deliveredCarts size < aCartId or: [0 > aCartId ]) ifTrue: [self error: self class invalidCartIdErrorMessage]
+	(allDeliveredCarts size < aCartId or: [0 > aCartId ]) ifTrue: [self error: self class invalidCartIdErrorMessage]
 ! !
 
 !PurchasingAdvisor methodsFor: 'assertions' stamp: 'FL 2/25/2021 09:07:41'!
@@ -730,65 +735,82 @@ assertIsValidCredentialsFor: aClientId and: aClientPassword
 ! !
 
 
-!PurchasingAdvisor methodsFor: 'initialization' stamp: 'FL 2/24/2021 23:12:29'!
+!PurchasingAdvisor methodsFor: 'initialization' stamp: 'FL 2/25/2021 12:46:13'!
 initializeValidateClientsWith: userLogginSystem toAdviseOverProductsOn: aCatalog  
 	
 	logginSystem := userLogginSystem.
 	catalog := aCatalog.
-	deliveredCarts := OrderedCollection new.! !
+	allDeliveredCarts := OrderedCollection new.
+	inProcessCarts := Set new.
+	purchasesMadeByClientId := Dictionary new.
+	clientIdFromCartId := Dictionary new.! !
 
 
 
-!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/24/2021 23:31:07'!
+!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 12:22:41'!
 add: numberOfBooksToAdd copiesOf: aBook toCart: aCartId
 
 	self assertIsValidCartId: aCartId.
 	
-	(deliveredCarts at: aCartId) add: aBook quantity: numberOfBooksToAdd.
+	(allDeliveredCarts at: aCartId) add: aBook quantity: numberOfBooksToAdd.
 	
 	
 ! !
 
-!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 02:54:59'!
+!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 13:54:10'!
 checkOut: aCartId payingWith: aCreditCard through: aMerchantProcessor 
 	
+	| clientId |
 	self assertIsValidCartId: aCartId.	
 	
 	(Cashier registeringSalesOn: OrderedCollection new) 
-		checkout: (deliveredCarts at: aCartId ) 
+		checkout: (allDeliveredCarts at: aCartId ) 
 		payingWith: aCreditCard 
 		through: aMerchantProcessor 
-		on: GregorianDateTime now.! !
+		on: GregorianDateTime now.
+	
+	inProcessCarts remove: aCartId.
+	
+	clientId := clientIdFromCartId at: aCartId.
+	purchasesMadeByClientId at: clientId 
+	ifPresent: [:clientPurchases | clientPurchases addAll: (self listCartWithId: aCartId )]
+	ifAbsent: [purchasesMadeByClientId at: clientId put: (self listCartWithId: aCartId)].
+	! !
 
-!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/24/2021 23:23:51'!
+!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 12:47:54'!
 createCartFor: aClientId withPassword: aClientPassword
 	
-	| cart |
+	| cart cartId |
 	
 	self assertIsValidCredentialsFor: aClientId and: aClientPassword.
-		
-	cart := Cart acceptingItemsOf: catalog.
-	deliveredCarts add: cart.
 	
-	^deliveredCarts size.! !
+	cart := Cart acceptingItemsOf: catalog.
+	allDeliveredCarts add: cart.
+	cartId := allDeliveredCarts size.	
+	inProcessCarts add: cartId.
+	clientIdFromCartId at: cartId put: aClientId.
+	
+	^cartId.! !
 
-!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 00:17:53'!
+!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 13:28:45'!
 listCartWithId: aCartId
-	| cart |	
+
+	| cart itemsInCart |	
 	
 	self assertIsValidCartId: aCartId.
-	
-	cart := deliveredCarts at: aCartId.
-	^catalog keys select: [:anItem | cart includes: anItem].
+	itemsInCart := Bag new.
+	cart := allDeliveredCarts at: aCartId.
+	catalog keys select: [:anItem | cart includes: anItem] thenDo: [:anItem | itemsInCart add: anItem withOccurrences: (cart quantityOf: anItem)].
+	^itemsInCart
 	
 	! !
 
-!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 02:48:19'!
+!PurchasingAdvisor methodsFor: 'system primitives' stamp: 'FL 2/25/2021 13:52:44'!
 listPurchasesFor: clientId and: clientPassword
 	
 	self assertIsValidCredentialsFor: clientId and: clientPassword.
 	
-	^deliveredCarts inject: OrderedCollection new addingAll:[:aCart | ^catalog keys] .! !
+	^purchasesMadeByClientId at: clientId ifAbsent:[^Bag new].! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
